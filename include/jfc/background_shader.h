@@ -57,7 +57,7 @@ const std::string BackgroundShaderFragmentGLSL(R"V0G0N(
 	void main()
 	{
 		v_UV += _UVOffset;
-		v_UV *= _UVScale;
+		//v_UV *= _UVScale;
 
 		vec4 frag = texture2D(_Texture, v_UV);
 	

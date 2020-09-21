@@ -14,11 +14,16 @@
 namespace flappy
 {
 	/// \brief models a single cloud
+	/// randomizes appearance and speed
 	class cloud final
 	{
+		//! instanced pseudo random number generator
 		std::default_random_engine m_Random;
 
+		//! position in the scene
 		std::shared_ptr<gdk::entity> m_Entity;
+
+		//! shader and uniform data
 		std::shared_ptr<gdk::material> m_Material;
 
 		gdk::Vector2<float> m_Scale = gdk::Vector2<float>::One;

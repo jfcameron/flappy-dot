@@ -21,7 +21,7 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] })));
 
 	m_Material->setTexture("_Texture", pTexture);
-	m_Material->setVector2("_UVScale", { 0.25, 0.25 });
+	m_Material->setVector2("_UVScale", { 0.25, 0.245 });
 
 	m_Entity = decltype(m_Entity)(std::move(pContext->make_entity(std::shared_ptr<model>(pContext->get_quad_model()), m_Material)));
 
@@ -30,8 +30,7 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	m_Material->setVector2("_UVOffset", { 0, 0 });
 }
 
-static float accumulator(0);
-static int frameIndex(0);
+
 
 void bird::update(float delta)
 {

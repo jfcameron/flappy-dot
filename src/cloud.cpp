@@ -36,6 +36,8 @@ void cloud::randomizeGraphic()
 	m_Material->setVector2("_UVOffset", graphic);
 
 	m_Speed = 0.5f + (0.3f * (m_Random() % 4));
+
+	m_Position.z = -0.490f + (m_Speed* 0.001f);
 }
 
 cloud::cloud(gdk::graphics::context::context_shared_ptr_type pContext,

@@ -13,11 +13,14 @@
 
 namespace flappy
 {
-	/// \brief models a single cloud
+	/// \brief the birdy player character
 	class bird final
 	{
 		std::shared_ptr<gdk::entity> m_Entity;
 		std::shared_ptr<gdk::material> m_Material;
+
+		float accumulator = 0;
+		int frameIndex = 0;
 
 	public:
 		void update(float delta);

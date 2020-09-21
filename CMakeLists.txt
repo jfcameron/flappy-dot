@@ -33,6 +33,8 @@ jfc_project(executable
         ${simpleglfw_LIBRARIES}
 
     SOURCE_LIST
+		${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 )
 

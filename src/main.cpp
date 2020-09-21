@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <jfc/flappy_image.png.h>
+#include <jfc/background_shader.h>
 
 #include <jfc/glfw_window.h>
 
@@ -18,34 +19,34 @@ using namespace gdk;
 int main(int argc, char** argv)
 {
 	// Init context
-	glfw_window window("basic rendering demo");
+	glfw_window window("flappy");
 
 	auto pContext = graphics::context::make(graphics::context::implementation::opengl_webgl1_gles2);
 
-	// Create background scene
-	auto pScene = pContext->make_scene();
-
-	auto pCamera = std::shared_ptr<gdk::camera>(std::move(pContext->make_camera()));
-
-	pScene->add_camera(pCamera);
-
-	auto pAlpha = pContext->get_alpha_cutoff_shader();
-
-	auto pUserModel = std::shared_ptr<model>(pContext->get_quad_model());
+	// Load embedded resources
+	gdk::graphics::context::shader_program_shared_ptr_type pBackgroundShader =
+		std::move(pContext->make_shader(BackgroundShaderVertexGLSL, BackgroundShaderFragmentGLSL));
 
 	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
-		{ FlappyBird_png, FlappyBird_png + sizeof FlappyBird_png / sizeof FlappyBird_png[0] }
-	)));
+		{FlappyBird_png, FlappyBird_png + sizeof FlappyBird_png / sizeof FlappyBird_png[0]})));
 
-	auto pMaterial = std::shared_ptr<material>(std::move(pContext->make_material(pAlpha)));
-	pMaterial->setTexture("_Texture", pTexture);
-	pMaterial->setVector2("_UVScale", { 1, 1 });
+	auto pQuadModel = std::shared_ptr<model>(pContext->get_quad_model());
 
-	auto pEntity = std::shared_ptr<entity>(std::move(pContext->make_entity(pUserModel, pMaterial)));
+	// Create materials
+	auto pBackgroundMaterial = std::shared_ptr<material>(std::move(pContext->make_material(pBackgroundShader)));
+	pBackgroundMaterial->setTexture("_Texture", pTexture);
+	pBackgroundMaterial->setVector2("_UVScale", { 1, 1 });
 
-	pEntity->set_model_matrix(Vector3<float>{2., 0., -11.}, Quaternion<float>());
+	// Create entities & cameras
+	auto pMainCamera = std::shared_ptr<gdk::camera>(std::move(pContext->make_camera()));
 
-	pScene->add_entity(pEntity);
+	auto pBackgroundEntity = std::shared_ptr<entity>(std::move(pContext->make_entity(pQuadModel, pBackgroundMaterial)));
+	pBackgroundEntity->set_model_matrix(Vector3<float>{2., 0., -11.}, Quaternion<float>());
+
+	// Create background scene
+	auto pScene = pContext->make_scene();
+	pScene->add_camera(pMainCamera);
+	pScene->add_entity(pBackgroundEntity);
 
 	float time = 0;
 
@@ -53,13 +54,13 @@ int main(int argc, char** argv)
 	{
 		glfwPollEvents();
 
-		pEntity->set_model_matrix(Vector3<float>{0, 0, -0.5}, Quaternion<float>{{0,0,0}});
+		pBackgroundEntity->set_model_matrix(Vector3<float>{0, 0, -0.5}, Quaternion<float>{{0,0,0}});
 
-		pCamera->set_projection(90, 0.01, 20, window.getAspectRatio());
+		pMainCamera->set_projection(90, 0.01, 20, window.getAspectRatio());
 
 		pScene->draw(window.getWindowSize());
 
-		pMaterial->setVector2("_UVOffset", {0, time });
+		pBackgroundMaterial->setVector2("_UVOffset", {0, time });
 
 		window.swapBuffer();
 

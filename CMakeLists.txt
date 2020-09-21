@@ -2,6 +2,8 @@
 
 cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
+project(null)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/jfc-cmake/jfclib.cmake")
 
 option(JFC_BUILD_DEMO "Build the demo" OFF)

@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <jfc/flappy_image.png.h>
+
 #include <jfc/glfw_window.h>
 
 #include <gdk/graphics_context.h>
@@ -15,11 +17,12 @@ using namespace gdk;
 
 int main(int argc, char** argv)
 {
-	// Separate lib, used to init GL and get a window ready for rendering on Linux/Mac/Windows
+	// Init context
 	glfw_window window("basic rendering demo");
 
 	auto pContext = graphics::context::make(graphics::context::implementation::opengl_webgl1_gles2);
 
+	// Create background scene
 	auto pScene = pContext->make_scene();
 
 	auto pCamera = std::shared_ptr<gdk::camera>(std::move(pContext->make_camera()));
@@ -28,85 +31,15 @@ int main(int argc, char** argv)
 
 	auto pAlpha = pContext->get_alpha_cutoff_shader();
 
-	using vertex_attribute_type = float;
-	using vertex_attribute_array_type = std::vector<vertex_attribute_type>;
+	auto pUserModel = std::shared_ptr<model>(pContext->get_quad_model());
 
-	vertex_attribute_type size = 1;
-	decltype(size) hsize = size / 2.;
-
-	vertex_attribute_array_type posData({ //Quad data: vertex positon  
-		size - hsize, size - hsize, 0.0f,
-		0.0f - hsize, size - hsize, 0.0f,
-		0.0f - hsize, 0.0f - hsize, 0.0f,
-		size - hsize, size - hsize, 0.0f,
-		0.0f - hsize, 0.0f - hsize, 0.0f,
-		size - hsize, 0.0f - hsize, 0.0f });
-
-	vertex_attribute_array_type uvData({ //Quad data: uvs
-		1, 0,
-		0, 0,
-		0, 1,
-		1, 0,
-		0, 1,
-		1, 1 });
-
-	auto pUserModel = std::shared_ptr<model>(std::move(
-		pContext->make_model({ vertex_data_view::UsageHint::Static,
-		{
-			{
-				"a_Position",
-				{
-					&posData.front(),
-					posData.size(),
-					3
-				}
-			},
-			{
-				"a_UV",
-				{
-					&uvData.front(),
-					uvData.size(),
-					2
-				}
-			}
-		} })));
-
-	texture::image_data_2d_view view;
-	view.width = 2;
-	view.height = 2;
-	view.format = texture::data_format::rgba;
-
-	std::vector<std::underlying_type<std::byte>::type> imageData({ // raw rgba data
-		0x00, 0xff, 0xff, 0xff,
-		0xff, 0xff, 0xff, 0xff,
-		0xff, 0xff, 0xff, 0xff,
-		0x00, 0x00, 0x00, 0xff });
-
-	view.data = reinterpret_cast<std::byte*>(&imageData.front());
-
-	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(view)));
+	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
+		{ FlappyBird_png, FlappyBird_png + sizeof FlappyBird_png / sizeof FlappyBird_png[0] }
+	)));
 
 	auto pMaterial = std::shared_ptr<material>(std::move(pContext->make_material(pAlpha)));
-
 	pMaterial->setTexture("_Texture", pTexture);
-
-	view.width = 2;
-	view.height = 2;
-	view.format = texture::data_format::rgba;
-
-	imageData = decltype(imageData)({
-		0x55, 0xff, 0xff, 0xff,
-		0xff, 0x00, 0xff, 0xff,
-		0xff, 0xff, 0x00, 0xff,
-		0x00, 0x00, 0x44, 0xff });
-
-	view.data = reinterpret_cast<std::byte*>(&imageData.front());
-
-	auto pTexture2 = std::shared_ptr<gdk::texture>(std::move(pContext->make_texture(view)));
-
-	auto pMaterial2 = std::shared_ptr<material>(std::move(pContext->make_material(pAlpha)));
-
-	pMaterial2->setTexture("_Texture", pTexture2);
+	pMaterial->setVector2("_UVScale", { 1, 1 });
 
 	auto pEntity = std::shared_ptr<entity>(std::move(pContext->make_entity(pUserModel, pMaterial)));
 
@@ -125,6 +58,8 @@ int main(int argc, char** argv)
 		pCamera->set_projection(90, 0.01, 20, window.getAspectRatio());
 
 		pScene->draw(window.getWindowSize());
+
+		pMaterial->setVector2("_UVOffset", {0, time });
 
 		window.swapBuffer();
 

@@ -19,6 +19,7 @@
 
 #include <jfc/background.h>
 #include <jfc/cloud.h>
+#include <jfc/bird.h>
 
 #include <GLFW/glfw3.h>
 
@@ -52,12 +53,10 @@ int main(int argc, char** argv)
 	flappy::scenery scenery(pContext, pBackgroundShader, pScene);
 
 	std::vector<flappy::cloud> clouds;
+
+	flappy::bird bird(pContext, pScene);
 	
 	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pContext, pScene));
-	
-	auto blar = flappy::cloud(pContext, pScene);
-
-	std::cout << clouds.size();
 	
 	while (!window.shouldClose())
 	{
@@ -69,10 +68,10 @@ int main(int argc, char** argv)
 
 		scenery.update(deltaTime);
 
+		bird.update(deltaTime);
+
 		for (auto &cloud : clouds) cloud.update(deltaTime);
-
-		blar.update(deltaTime);
-
+		
 		window.swapBuffer();
 	}
 

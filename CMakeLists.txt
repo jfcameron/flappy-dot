@@ -23,6 +23,7 @@ jfc_project(executable
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         
         ${gdkgraphics_INCLUDE_DIRECTORIES} 
+        ${gdkinput_INCLUDE_DIRECTORIES} 
         ${simpleglfw_INCLUDE_DIRECTORIES}
 
     PRIVATE_INCLUDE_DIRECTORIES
@@ -30,6 +31,7 @@ jfc_project(executable
 
     LIBRARIES
         ${gdkgraphics_LIBRARIES}
+        ${gdkinput_LIBRARIES}
         ${simpleglfw_LIBRARIES}
 
     SOURCE_LIST

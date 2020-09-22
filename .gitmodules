@@ -7,3 +7,6 @@
 [submodule "thirdparty/simple-glfw"]
 	path = thirdparty/simple-glfw
 	url = https://github.com/jfcameron/simple-glfw.git
+[submodule "thirdparty/gdk-input"]
+	path = thirdparty/gdk-input
+	url = https://github.com/jfcameron/gdk-input.git

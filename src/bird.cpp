@@ -14,7 +14,9 @@ static const std::array<graphics_vector2_type, 4> FLAPPING_ANIMATION{
 };
 
 bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
-	gdk::graphics::context::scene_shared_ptr_type pScene)
+	gdk::graphics::context::scene_shared_ptr_type pScene,
+	gdk::input::context::context_shared_ptr_type pInput)
+	: m_pInput(pInput)
 {
 	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
 	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
@@ -30,8 +32,6 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	m_Material->setVector2("_UVOffset", { 0, 0 });
 }
 
-
-
 void bird::update(float delta)
 {
 	accumulator += delta;
@@ -46,4 +46,8 @@ void bird::update(float delta)
 	}
 
 	m_Entity->set_model_matrix({ 0, 0, 0 }, {{0, 0, 0}}, { 0.2, 0.2, 1 });
+
+	if (m_pInput->get_key_down(gdk::keyboard::Key::A)) std::cout << "its down!\n";
+
+	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::A)) std::cout << "its just down!\n";
 }

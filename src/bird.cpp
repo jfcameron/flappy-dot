@@ -34,6 +34,7 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 
 void bird::update(float delta)
 {
+	// Animate
 	accumulator += delta;
 
 	if (accumulator > 0.35)
@@ -45,9 +46,15 @@ void bird::update(float delta)
 		m_Material->setVector2("_UVOffset", FLAPPING_ANIMATION[frameIndex]);
 	}
 
-	m_Entity->set_model_matrix({ 0, 0, 0 }, {{0, 0, 0}}, { 0.2, 0.2, 1 });
+	// Handle acceleration
+	if (m_VerticalSpeed > -1.f) m_VerticalSpeed -= delta * 0.1;
 
-	if (m_pInput->get_key_down(gdk::keyboard::Key::A)) std::cout << "its down!\n";
+	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
+	{
+		m_VerticalSpeed = 0.0225f;
+	}
 
-	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::A)) std::cout << "its just down!\n";
+	m_Position.y += m_VerticalSpeed;
+
+	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, 0 }, { {0, 0, -m_VerticalSpeed * 20} }, { 0.2, 0.2, 1 });
 }

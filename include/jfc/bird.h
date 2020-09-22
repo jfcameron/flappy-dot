@@ -25,6 +25,10 @@ namespace flappy
 		float accumulator = 0;
 		int frameIndex = 0;
 
+		float m_VerticalSpeed = 0;
+
+		gdk::Vector2<float> m_Position;
+
 	public:
 		void update(float delta);
 

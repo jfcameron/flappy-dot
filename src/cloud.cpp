@@ -60,7 +60,7 @@ cloud::cloud(gdk::graphics::context::context_shared_ptr_type pContext,
 	randomizeGraphic();
 }
 
-float total_time(0);
+static float total_time(0);
 
 void cloud::update(const float delta)
 {

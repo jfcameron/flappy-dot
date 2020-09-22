@@ -37,6 +37,8 @@ jfc_project(executable
 		${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
 )
 
 if (JFC_BUILD_TESTS)

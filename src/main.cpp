@@ -20,6 +20,8 @@
 #include <jfc/background.h>
 #include <jfc/cloud.h>
 #include <jfc/bird.h>
+#include <jfc/city.h>
+#include <jfc/pipe.h>
 
 #include <GLFW/glfw3.h>
 
@@ -28,7 +30,7 @@ using namespace gdk;
 int main(int argc, char** argv)
 {
 	// Init context
-	glfw_window window("flappy");
+	glfw_window window("flappy::bird");
 
 	auto pContext = graphics::context::context_shared_ptr_type(std::move(
 		graphics::context::make(graphics::context::implementation::opengl_webgl1_gles2)));
@@ -39,14 +41,15 @@ int main(int argc, char** argv)
 
 	auto pQuadModel = std::shared_ptr<model>(pContext->get_quad_model());
 
-	// Create materials
-
 	// Create entities & cameras
 	auto pMainCamera = std::shared_ptr<gdk::camera>(std::move(pContext->make_camera()));
 
-	// Create background scene
+	// Create primary scene
 	auto pScene = gdk::graphics::context::scene_shared_ptr_type(std::move(pContext->make_scene()));
 	pScene->add_camera(pMainCamera);
+
+	// Create GUI scene
+	//.........
 
 	float deltaTime = 0.01;
 
@@ -55,6 +58,8 @@ int main(int argc, char** argv)
 	std::vector<flappy::cloud> clouds;
 
 	flappy::bird bird(pContext, pScene);
+
+	flappy::pipe pipe(pContext, pScene);
 	
 	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pContext, pScene));
 	
@@ -69,6 +74,8 @@ int main(int argc, char** argv)
 		scenery.update(deltaTime);
 
 		bird.update(deltaTime);
+
+		pipe.update(deltaTime);
 
 		for (auto &cloud : clouds) cloud.update(deltaTime);
 		

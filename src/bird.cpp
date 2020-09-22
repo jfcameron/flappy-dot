@@ -45,5 +45,5 @@ void bird::update(float delta)
 		m_Material->setVector2("_UVOffset", FLAPPING_ANIMATION[frameIndex]);
 	}
 
-	m_Entity->set_model_matrix({ 0, 0, 0 }, {{0, 0, 0}}, { 0.25, 0.25, 1 });
+	m_Entity->set_model_matrix({ 0, 0, 0 }, {{0, 0, 0}}, { 0.2, 0.2, 1 });
 }

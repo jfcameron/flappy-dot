@@ -118,7 +118,7 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 
 pipe::pipe(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene)
-: m_Position(0.5, -0.5, -0.43)
+: m_Position(0.5, -0.5, -0.435)
 {
 	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
 		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] })));
@@ -143,7 +143,7 @@ void pipe::update(const float delta)
 
 	m_Position.x -= delta;
 
-	m_Entity->set_model_matrix(m_Position, {}, { 0.25, 0.25, 1 });
+	m_Entity->set_model_matrix(m_Position, {{0, 0, 45}}, { 0.25, 0.25, 1 });
 
 	if (m_Position.x < -2)
 	{

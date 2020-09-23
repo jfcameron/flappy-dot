@@ -54,8 +54,7 @@ cloud::cloud(gdk::graphics::context::context_shared_ptr_type pContext,
 
 	pScene->add_entity(m_Entity);
 
-	unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
-	m_Random.seed(seed1);
+	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
 	randomizeGraphic();
 }

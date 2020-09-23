@@ -12,6 +12,8 @@
 
 #include <gdk/input_context.h>
 
+#include <jfc/pipe.h>
+
 namespace flappy
 {
 	/// \brief the birdy player character
@@ -30,7 +32,7 @@ namespace flappy
 		gdk::Vector2<float> m_Position;
 
 	public:
-		void update(float delta);
+		void update(float delta, std::vector<pipe> pipes);
 
 		bird(gdk::graphics::context::context_shared_ptr_type pContext,
 			gdk::graphics::context::scene_shared_ptr_type pScene,

@@ -1,24 +1,16 @@
-// © 2019 Joseph Cameron - All Rights Reserved
+// © 2020 Joseph Cameron - All Rights Reserved
 
 #include <cstdlib>
 #include <iostream>
 #include <functional>
+#include <stack>
 
 #include <gdk/graphics_context.h>
-#include <gdk/scene.h>
 #include <gdk/input_context.h>
 
-#include <jfc/Sprite_Sheet.png.h>
-#include <jfc/Floor.png.h>
-#include <jfc/Sprite_Sheet.png.h>
-#include <jfc/Text_Sheet.png.h>
-#include <jfc/background_shader.h>
 #include <jfc/glfw_window.h>
-#include <jfc/background.h>
-#include <jfc/cloud.h>
-#include <jfc/bird.h>
-#include <jfc/city.h>
-#include <jfc/pipe.h>
+#include <jfc/game_screen.h>
+#include <jfc/main_menu_screen.h>
 
 #include <GLFW/glfw3.h>
 
@@ -26,7 +18,6 @@ using namespace gdk;
 
 int main(int argc, char** argv)
 {
-	// Init context
 	glfw_window window("flappy::bird");
 
 	auto pGraphicsContext = graphics::context::context_shared_ptr_type(std::move(
@@ -35,33 +26,14 @@ int main(int argc, char** argv)
 	auto pInputContext = input::context::context_shared_ptr_type(std::move(
 		input::context::make(window.getPointerToGLFWWindow())));
 
-	// Load embedded resources
-	gdk::graphics::context::shader_program_shared_ptr_type pBackgroundShader =
-		std::move(pGraphicsContext->make_shader(BackgroundShaderVertexGLSL, BackgroundShaderFragmentGLSL));
-
-	auto pQuadModel = std::shared_ptr<model>(pGraphicsContext->get_quad_model());
-
-	// Create entities & cameras
-	auto pMainCamera = std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera()));
-
-	// Create primary scene
-	auto pScene = gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene()));
-	pScene->add_camera(pMainCamera);
-
-	// Create GUI scene
-	//.........
-
 	float deltaTime = 0.01;
 
-	flappy::scenery scenery(pGraphicsContext, pBackgroundShader, pScene);
+	std::stack<std::shared_ptr<gdk::screen>> screens;
 
-	std::vector<flappy::cloud> clouds;
+	std::shared_ptr<gdk::screen> pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, pInputContext));
+	std::shared_ptr<gdk::screen> pMainMenuScreen = std::make_shared<gdk::main_menu_screen>(gdk::main_menu_screen());
 
-	flappy::bird bird(pGraphicsContext, pScene, pInputContext);
-
-	flappy::pipe pipe(pGraphicsContext, pScene);
-	
-	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pScene));
+	screens.push(pGameScreen);
 	
 	while (!window.shouldClose())
 	{
@@ -69,18 +41,8 @@ int main(int argc, char** argv)
 
 		pInputContext->update();
 
-		pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, window.getAspectRatio());
+		if (screens.size()) screens.top()->update(deltaTime, window.getAspectRatio(), window.getWindowSize());
 
-		pScene->draw(window.getWindowSize());
-
-		scenery.update(deltaTime);
-
-		bird.update(deltaTime);
-
-		pipe.update(deltaTime);
-
-		for (auto &cloud : clouds) cloud.update(deltaTime);
-		
 		window.swapBuffer();
 	}
 

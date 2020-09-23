@@ -7,9 +7,9 @@
 #include <gdk/scene.h>
 #include <gdk/entity.h>
 #include <gdk/model.h>
+#include <gdk/input_context.h>
 
 #include <random>
-
 #include <array>
 
 namespace flappy
@@ -17,6 +17,14 @@ namespace flappy
 	/// \brief the game's obstacles
 	class pipe final
 	{
+	public:
+		enum class set_up_model
+		{
+			up_pipe,
+			down_pipe
+		};
+
+	private:
 		//! instanced pseudo random number generator
 		std::default_random_engine m_Random;
 
@@ -32,13 +40,27 @@ namespace flappy
 		//! model for the downwards pipe
 		std::shared_ptr<gdk::model> m_DownPipeModel;
 
-		gdk::Vector3<float> m_Position;
+
+		gdk::Vector2<float> m_Position;
+		gdk::Vector2<float> m_Scale;
+		float m_Rotation = 0;
 
 	public:
-		void update(const float delta);
+		decltype(m_Position) getPosition() const;
+		
+		decltype(m_Scale) getScale() const;
+
+		decltype(m_Rotation) getRotation() const;
+
+		void update(const float delta, gdk::input::context::context_shared_ptr_type pInput);
+
+		bool check_collision(const gdk::graphics_mat4x4_type &aWorldPosition) const;
+
+		void set_up(const decltype(m_Position)& aPosition, const decltype(m_Rotation) aRotation, const set_up_model &aModel);
 
 		pipe(gdk::graphics::context::context_shared_ptr_type pContext,
 			gdk::graphics::context::scene_shared_ptr_type pScene);
+
 		~pipe() = default;
 	};
 };

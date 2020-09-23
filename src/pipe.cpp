@@ -23,8 +23,8 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 	vertex_attribute_type size = 1;
 	decltype(size) hsize = size / 2.;
 
-	vertex_attribute_array_type posData({ //"tiles", used to render the two pieces of pipe (mouth and trunk)
-		size - hsize, size - hsize, 0.0f,
+	vertex_attribute_array_type posData({ //quads used to render the pieces of pipe (mouth and trunk)
+		size - hsize, size - hsize, 0.0f, // NOTE: This work should be abstracted away into a tiled mesh generator.
 		0.0f - hsize, size - hsize, 0.0f,
 		0.0f - hsize, 0.0f - hsize, 0.0f,
 		size - hsize, size - hsize, 0.0f,
@@ -118,7 +118,8 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 
 pipe::pipe(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene)
-: m_Position(0.5, -0.5, -0.435)
+: m_Position(0.0, 0.0)
+, m_Scale(0.25, 0.25)
 {
 	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
 		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] })));
@@ -126,27 +127,80 @@ pipe::pipe(gdk::graphics::context::context_shared_ptr_type pContext,
 	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
 	m_Material->setTexture("_Texture", pTexture);
 	m_Material->setVector2("_UVScale", { 1, 1 });
+	m_Material->setVector2("_UVOffset", { 0, 0 });
 
 	m_UpPipeModel = generatePipeModel(PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_MOUTH_UP_GRAPHIC, pContext);
 	m_DownPipeModel = generatePipeModel(PIPE_MOUTH_DOWN_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, pContext);
 
 	m_Entity = pContext->make_entity(m_UpPipeModel, m_Material);
-
+	
 	pScene->add_entity(m_Entity);
 }
 
 float total_time(0);
 
-void pipe::update(const float delta)
+void pipe::update(const float delta, gdk::input::context::context_shared_ptr_type pInput)
 {
 	total_time += delta * 0.999f;
 
 	m_Position.x -= delta;
 
-	m_Entity->set_model_matrix(m_Position, {{0, 0, 45}}, { 0.25, 0.25, 1 });
+	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.435 }, { {0, 0, m_Rotation} }, { m_Scale.x, m_Scale.y, 1 });
 
-	if (m_Position.x < -2)
-	{
-		m_Position.x = 2;
-	}
+	//if (m_Position.x < -2) m_Position.x = 2;
+}
+
+decltype(pipe::m_Position) pipe::getPosition() const
+{
+	return {m_Position.x, m_Position.y};
+}
+
+decltype(pipe::m_Scale) pipe::getScale() const
+{
+	return m_Scale;
+}
+
+decltype(pipe::m_Rotation) pipe::getRotation() const
+{
+	return m_Rotation;
+}
+
+void pipe::set_up(const decltype(m_Position)& aPosition, 
+	const decltype(m_Rotation) aRotation, 
+	const pipe::set_up_model &aModel)
+{
+	m_Position = aPosition;
+	m_Rotation = aRotation;
+
+	m_Entity->set_model(aModel == pipe::set_up_model::up_pipe
+		? m_UpPipeModel
+		: m_DownPipeModel);
+}
+
+bool pipe::check_collision(const graphics_mat4x4_type &aWorldPosition) const
+{
+	// Building an inverse world matrix so the bird's world position can be mulled into the pipe's local space, 
+	// for scale & rotation friendly point vs box collision detection
+	// NOTE: This should not be the pipe's responsibility, should be a separate system, e.g box2d
+	// but its fine given how simple this game is.
+	graphics_mat4x4_type pipeWorld;
+
+	auto pos = getPosition();
+	auto sca = getScale();
+	auto rot = getRotation();
+
+	pipeWorld.translate({ pos.x, pos.y, 0 });
+	pipeWorld.scale({ sca.x, sca.y, 1 });
+	pipeWorld.rotate({ {0, 0, rot} });
+	pipeWorld.inverse(); 
+
+	graphics_mat4x4_type localBird = pipeWorld * aWorldPosition;
+	Vector2<float> localBirdPos(localBird.m[3][0], localBird.m[3][1]);
+
+	return 
+		//Horizontal check
+		std::abs(localBirdPos.x) < 0.15
+		//Vertical checks
+		&& localBirdPos.y > -0.1
+		&& localBirdPos.y < 0.5;
 }

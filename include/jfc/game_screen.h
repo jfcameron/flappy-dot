@@ -26,12 +26,26 @@ namespace gdk
 {
 	class game_screen final : public screen
 	{
+		enum class mode
+		{
+			wait_player_ready,
+			playing,
+			restart_or_quit
+		};
+
+		mode m_Mode = mode::playing;
+
 		//! instanced pseudo random number generator
 		std::default_random_engine m_Random;
 
+		//! ptr to the input abstraction
 		input::context::context_shared_ptr_type pInputContext;
 
-		gdk::graphics::context::scene_shared_ptr_type pScene;
+		//! graphics scene where gameplay takes place
+		gdk::graphics::context::scene_shared_ptr_type pGameScene;
+
+		//! graphics scene where GUI elements are rendered
+		gdk::graphics::context::scene_shared_ptr_type pGUIScene;
 
 		std::shared_ptr<gdk::camera> pMainCamera;
 
@@ -40,6 +54,9 @@ namespace gdk
 		flappy::bird bird;
 
 		std::vector<flappy::cloud> clouds;
+		std::vector<flappy::city> cities;
+
+
 
 		// Pipe control
 		size_t pipeCounter = 0;

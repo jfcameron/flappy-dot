@@ -29,11 +29,10 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 
 	m_Material->setTexture("_Texture", pTexture);
 	m_Material->setVector2("_UVScale", { 0.25, 0.245 });
+	m_Material->setVector2("_UVOffset", { 0, 0 });
 
 	m_Entity = decltype(m_Entity)(std::move(pContext->make_entity(std::shared_ptr<model>(pContext->get_quad_model()), m_Material)));
 	pScene->add_entity(m_Entity);
-
-	m_Material->setVector2("_UVOffset", { 0, 0 });
 }
 
 void bird::update(float delta, std::vector<pipe> pipes)

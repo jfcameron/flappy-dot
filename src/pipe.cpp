@@ -118,7 +118,7 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 
 pipe::pipe(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene)
-: m_Position(0.0, 0.0)
+: m_Position(-5.0, 0.0)
 , m_Scale(0.25, 0.25)
 {
 	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
@@ -146,8 +146,6 @@ void pipe::update(const float delta, gdk::input::context::context_shared_ptr_typ
 	m_Position.x -= delta;
 
 	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.435 }, { {0, 0, m_Rotation} }, { m_Scale.x, m_Scale.y, 1 });
-
-	//if (m_Position.x < -2) m_Position.x = 2;
 }
 
 decltype(pipe::m_Position) pipe::getPosition() const

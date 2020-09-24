@@ -1,4 +1,9 @@
-#include <jfc/game_screen.h>
+﻿#include <jfc/game_screen.h>
+
+#include <gdk/text_map.h>
+#include <gdk/static_text_renderer.h>
+
+#include <jfc/Text_Sheet.png.h>
 
 #include <memory>
 #include <chrono>
@@ -16,20 +21,82 @@ static size_t increment_pipeCounter(size_t &pipeCounter, size_t size)
 game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext)
 	: pInputContext(aInputContext)
-	, pScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
+	, pGameScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
-	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pScene))
-	, bird(flappy::bird(pGraphicsContext, pScene, pInputContext))
+	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
+	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext))
 {
 	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
-	pScene->add_camera(pMainCamera);
+	pGameScene->add_camera(pMainCamera);
 
-	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pScene));
+	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pGameScene));
 
-	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pScene));
+	for (int i(0); i < 1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene));
 
-	std::cout << pipes.size() << "\n";
+	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene));
+
+	// text stuff
+	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(pGraphicsContext->make_texture(
+		{ Text_Sheet_png, Text_Sheet_png + sizeof Text_Sheet_png / sizeof Text_Sheet_png[0] }))));
+
+	text_map map(
+		pTextTexture,
+		{8, 8},
+		{
+			{'a', {0,0}},
+			{'b', {1,0}},
+			{'c', {2,0}},
+			{'d', {3,0}},
+			{'e', {4,0}},
+			{'f', {5,0}},
+			{'g', {6,0}},
+			{'h', {7,0}},
+
+			{'i', {0,1}},
+			{'j', {1,1}},
+			{'k', {2,1}},
+			{'l', {3,1}},
+			{'m', {4,1}},
+			{'n', {5,1}},
+			{'o', {6,1}},
+			{'p', {7,1}},
+
+			{'q', {0,2}},
+			{'r', {1,2}},
+			{'s', {2,2}},
+			{'t', {3,2}},
+			{'u', {4,2}},
+			{'v', {5,2}},
+			{'w', {6,2}},
+			{'x', {7,2}},
+
+			{'y', {0,3}},
+			{'z', {1,3}},
+			{'!', {2,3}},
+
+			{'0', {3,3}},
+			{'1', {4,3}},
+			{'2', {5,3}},
+			{'3', {6,3}},
+			{'4', {7,3}},
+
+			{'5', {0,4}},
+			{'6', {1,4}},
+			{'7', {2,4}},
+			{'8', {3,4}},
+			{'9', {4,4}},
+
+			{' ', {5,4}},
+
+			{'あ', {4,4}}, //unicode test. it worked.
+		});
+
+	static_text_renderer text("rock and roll あ",
+		map, 
+		pGraphicsContext);
+
+	text.add_to_scene(pGameScene);
 	
 	// the different pipe layouts
 	m_PipeBehaviours[0] = [](decltype(pipes)& pipes, decltype(pipeCounter)& counter, decltype(pipeDelay)& delay, decltype(m_Random)& random)
@@ -96,20 +163,31 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 {
 	pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, aspectRatio);
 
-	pScene->draw(windowSize);
+	pGameScene->draw(windowSize);
 
 	scenery.update(deltaTime);
-
-	bird.update(deltaTime, pipes);
 
 	for (auto &pipe : pipes) pipe.update(deltaTime, pInputContext);
 
 	for (auto &cloud : clouds) cloud.update(deltaTime);
 
-	pipeDelay -= deltaTime * 1;
-	if ( pipeDelay <= 0)
+	for (auto& city : cities) city.update(deltaTime);
+
+
+	switch (m_Mode)
 	{
-		//float pipeDelay = 0;
-		m_PipeBehaviours[m_Random() % m_PipeBehaviours.size()](pipes, pipeCounter, pipeDelay, m_Random);
+		case mode::playing:
+		{
+			bird.update(deltaTime, pipes);
+
+			pipeDelay -= deltaTime * 1;
+			if (pipeDelay <= 0)
+			{
+				//float pipeDelay = 0;
+				m_PipeBehaviours[m_Random() % m_PipeBehaviours.size()](pipes, pipeCounter, pipeDelay, m_Random);
+			}
+		} break;
+
+		default: break;
 	}
 }

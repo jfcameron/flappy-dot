@@ -13,7 +13,7 @@
 
 namespace flappy
 {
-	/// \brief models a single cloud
+	/// \brief models a single city
 	/// randomizes appearance and speed
 	class city final
 	{
@@ -28,6 +28,8 @@ namespace flappy
 
 		gdk::Vector2<float> m_Scale = gdk::Vector2<float>::One;
 		gdk::Vector3<float> m_Position;
+
+		float m_Speed = 1;
 
 		void randomizeGraphic();
 

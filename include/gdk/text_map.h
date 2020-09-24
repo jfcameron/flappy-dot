@@ -14,7 +14,8 @@ namespace gdk
 {
 	/// \brief data type, used to render text when given to a text renderer
 	/// 
-	// TODO: expand to support multiple textures, so I can map codepoints to rasters in multiple textuers
+	// TODO: expand to support multiple textures, so I can map codepoints to rasters in multiple textures,
+	// absolutely mandatory for chinese character support
 	class text_map final
 	{
 	public:

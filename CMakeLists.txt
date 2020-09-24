@@ -45,9 +45,11 @@ jfc_project(executable
 		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
         
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamic_text_renderer.cpp # likely move these to separate lib
+		# Move these to a new repo: gdk-text-renderer
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamic_text_renderer.cpp 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/static_text_renderer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/text_map.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_renderer.cpp
 )
 
 if (JFC_BUILD_TESTS)

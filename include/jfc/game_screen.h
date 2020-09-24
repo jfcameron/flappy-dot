@@ -9,6 +9,10 @@
 #include <gdk/input_context.h>
 #include <gdk/scene.h>
 
+#include <gdk/text_map.h>
+#include <gdk/static_text_renderer.h>
+#include <gdk/dynamic_text_renderer.h>
+
 #include <jfc/Text_Sheet.png.h>
 #include <jfc/Sprite_Sheet.png.h>
 #include <jfc/Floor.png.h>
@@ -56,7 +60,7 @@ namespace gdk
 		std::vector<flappy::cloud> clouds;
 		std::vector<flappy::city> cities;
 
-
+		std::shared_ptr<dynamic_text_renderer> pText;
 
 		// Pipe control
 		size_t pipeCounter = 0;

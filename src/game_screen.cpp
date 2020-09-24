@@ -1,14 +1,11 @@
 ﻿#include <jfc/game_screen.h>
 
-#include <gdk/text_map.h>
-#include <gdk/static_text_renderer.h>
-
 #include <jfc/Text_Sheet.png.h>
 
 #include <memory>
 #include <chrono>
 #include <random>
-
+#include <locale.h>
 using namespace gdk;
 
 static size_t increment_pipeCounter(size_t &pipeCounter, size_t size)
@@ -35,6 +32,8 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 	for (int i(0); i < 1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene));
 
 	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene));
+
+	setlocale(LC_ALL, "ja_JP.UTF8");
 
 	// text stuff
 	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(pGraphicsContext->make_texture(
@@ -87,17 +86,24 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 			{'8', {3,4}},
 			{'9', {4,4}},
 
-			{' ', {5,4}},
+			{'.', {5,4}},
+			{'?', {6,4}},
+			{' ', {7,4}},
 
-			{'あ', {4,4}}, //unicode test. it worked.
+			{L'あ', {0,7}}, //unicode test.
 		});
 
-	static_text_renderer text("rock and roll あ",
+	/*static_text_renderer text("rock and roll あ",
 		map, 
 		pGraphicsContext);
 
-	text.add_to_scene(pGameScene);
-	
+	text.add_to_scene(pGameScene);*/
+
+	pText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext, map));
+
+	pText->add_to_scene(pGameScene);
+
+
 	// the different pipe layouts
 	m_PipeBehaviours[0] = [](decltype(pipes)& pipes, decltype(pipeCounter)& counter, decltype(pipeDelay)& delay, decltype(m_Random)& random)
 	{
@@ -172,7 +178,8 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 	for (auto &cloud : clouds) cloud.update(deltaTime);
 
 	for (auto& city : cities) city.update(deltaTime);
-
+	static int i = 0;
+	pText->update_text(std::to_wstring(i++) + L"?!.あ");
 
 	switch (m_Mode)
 	{

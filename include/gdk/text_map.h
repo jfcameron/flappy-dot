@@ -14,6 +14,7 @@ namespace gdk
 {
 	/// \brief data type, used to render text when given to a text renderer
 	/// 
+	// TODO: expand to support multiple textures, so I can map codepoints to rasters in multiple textuers
 	class text_map final
 	{
 	public:
@@ -21,7 +22,7 @@ namespace gdk
 		using cell_size_type = gdk::Vector2<double>;
 		using texture_size_in_cells_type = gdk::IntVector2<size_t>;
 		using cell_coordinate_type = gdk::IntVector2<size_t>;
-		using code_point_to_cell_coordinate_map_type = std::unordered_map<char, cell_coordinate_type>;
+		using code_point_to_cell_coordinate_map_type = std::unordered_map<wchar_t, cell_coordinate_type>;
 
 	private:
 		//! the texture containing the rasterized codepoints
@@ -42,7 +43,7 @@ namespace gdk
 
 		//! returns the cell that contains the appropriate raster
 		/// \warn exception if a raster does not exist for the code point
-		cell_coordinate_type get_raster_coordinate(char aCodePoint);
+		cell_coordinate_type get_raster_coordinate(wchar_t aCodePoint);
 
 		text_map(texture_ptr_type aTexture,
 			const texture_size_in_cells_type &aTextureSizeInCells,

@@ -3,26 +3,21 @@
 #ifndef GDK_DYNAMIC_TEXT_RENDER_H
 #define GDK_DYNAMIC_TEXT_RENDER_H
 
-#include <gdk/graphics_context.h>
-#include <gdk/scene.h>
-#include <gdk/entity.h>
-
-#include <random>
-#include <array>
-
-#include <gdk/input_context.h>
-#include <gdk/text_map.h>
+#include <gdk/text_renderer.h>
 
 namespace gdk
 {
-	/// \brief renders text that can be updated
-	class dynamic_text_renderer final
+	/// \brief base text renderer
+	class dynamic_text_renderer final : public text_renderer
 	{
-
 	public:
-		void update_text(const std::string &string);
+		void update_text(const std::wstring &string);
 
-		//dynamic_text_renderer();
+		dynamic_text_renderer(gdk::graphics::context::context_shared_ptr_type pContext,
+			gdk::text_map aTextMap,
+			std::wstring aText = L" ");
+
+		~dynamic_text_renderer() = default;
 	};
 }
 

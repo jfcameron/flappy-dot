@@ -1,4 +1,4 @@
-#include <gdk/text_map.h>
+﻿#include <gdk/text_map.h>
 
 using namespace gdk;
 
@@ -12,7 +12,7 @@ text_map::text_map(texture_ptr_type aTexture,
 , m_CodePointToCellCoordinateMap(aCodePointToCellCoordinateMap)
 {}
 
-text_map::cell_coordinate_type text_map::get_raster_coordinate(char aCodePoint)
+text_map::cell_coordinate_type text_map::get_raster_coordinate(wchar_t aCodePoint)
 {
 	auto search = m_CodePointToCellCoordinateMap.find(aCodePoint);
 	
@@ -21,7 +21,7 @@ text_map::cell_coordinate_type text_map::get_raster_coordinate(char aCodePoint)
 	
 	throw std::runtime_error(std::string(TAG) + 
 		": text map does not contain the character: \"" + 
-		aCodePoint + "\"");
+		/*aCodePoint +*/ "\"");
 }
 
 decltype(text_map::m_Texture) text_map::getTexture() const

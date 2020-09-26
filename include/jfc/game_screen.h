@@ -21,6 +21,7 @@
 #include <jfc/bird.h>
 #include <jfc/city.h>
 #include <jfc/pipe.h>
+#include <jfc/screen_stack.h>
 
 #include <array>
 #include <memory>
@@ -44,6 +45,8 @@ namespace gdk
 
 		//! ptr to the input abstraction
 		input::context::context_shared_ptr_type pInputContext;
+
+		screen_stack_ptr_type m_pScreens;
 
 		//! graphics scene where gameplay takes place
 		gdk::graphics::context::scene_shared_ptr_type pGameScene;
@@ -72,7 +75,8 @@ namespace gdk
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 
 		game_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
-			input::context::context_shared_ptr_type aInputContext);
+			input::context::context_shared_ptr_type aInputContext,
+			screen_stack_ptr_type aScreens);
 
 		virtual ~game_screen() = default;
 	};

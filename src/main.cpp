@@ -12,6 +12,7 @@
 #include <jfc/game_screen.h>
 #include <jfc/main_menu_screen.h>
 #include <jfc/icon.png.h>
+#include <jfc/screen_stack.h>
 
 #include <GLFW/glfw3.h>
 
@@ -28,13 +29,16 @@ int main(int argc, char** argv)
 		input::context::make(window.getPointerToGLFWWindow())));
 
 	float deltaTime = 0.01;
+	
+	screen_stack_ptr_type pScreens = std::make_shared<std::stack<std::shared_ptr<gdk::screen>>>(std::stack<std::shared_ptr<gdk::screen>>());
 
-	std::stack<std::shared_ptr<gdk::screen>> screens;
+	screen_ptr_type pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, pInputContext, pScreens));
+	screen_ptr_type pMainMenuScreen = std::make_shared<gdk::main_menu_screen>(gdk::main_menu_screen(pGraphicsContext, 
+		pInputContext,
+		pScreens,
+		pGameScreen));
 
-	std::shared_ptr<gdk::screen> pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, pInputContext));
-	std::shared_ptr<gdk::screen> pMainMenuScreen = std::make_shared<gdk::main_menu_screen>(gdk::main_menu_screen());
-
-	screens.push(pMainMenuScreen);
+	pScreens->push(pMainMenuScreen);
 	
 	while (!window.shouldClose())
 	{
@@ -42,7 +46,7 @@ int main(int argc, char** argv)
 
 		pInputContext->update();
 
-		if (screens.size()) screens.top()->update(deltaTime, window.getAspectRatio(), window.getWindowSize());
+		if (pScreens->size()) pScreens->top()->update(deltaTime, window.getAspectRatio(), window.getWindowSize());
 
 		window.swapBuffer();
 	}

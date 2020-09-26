@@ -1,11 +1,9 @@
 ﻿#include <jfc/game_screen.h>
-
 #include <jfc/Text_Sheet.png.h>
 
 #include <memory>
 #include <chrono>
 #include <random>
-#include <locale.h>
 using namespace gdk;
 
 static size_t increment_pipeCounter(size_t &pipeCounter, size_t size)
@@ -16,8 +14,10 @@ static size_t increment_pipeCounter(size_t &pipeCounter, size_t size)
 }
 
 game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsContext,
-	input::context::context_shared_ptr_type aInputContext)
+	input::context::context_shared_ptr_type aInputContext,
+	screen_stack_ptr_type aScreens)
 	: pInputContext(aInputContext)
+	, m_pScreens(aScreens)
 	, pGameScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
@@ -32,9 +32,7 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 	for (int i(0); i < 1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene));
 
 	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene));
-
-	setlocale(LC_ALL, "ja_JP.UTF8");
-
+	
 	// text stuff
 	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(pGraphicsContext->make_texture(
 		{ Text_Sheet_png, Text_Sheet_png + sizeof Text_Sheet_png / sizeof Text_Sheet_png[0] }))));
@@ -89,20 +87,14 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 			{'.', {5,4}},
 			{'?', {6,4}},
 			{' ', {7,4}},
-
-			{L'あ', {0,7}}, //unicode test.
 		});
 
-	/*static_text_renderer text("rock and roll あ",
+	pText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext, 
 		map, 
-		pGraphicsContext);
-
-	text.add_to_scene(pGameScene);*/
-
-	pText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext, map));
+		text_renderer::alignment::upper_edge));
+	pText->set_model_matrix({ 0, 0.5f, 0 }, {}, { 0.1f });
 
 	pText->add_to_scene(pGameScene);
-
 
 	// the different pipe layouts
 	m_PipeBehaviours[0] = [](decltype(pipes)& pipes, decltype(pipeCounter)& counter, decltype(pipeDelay)& delay, decltype(m_Random)& random)
@@ -167,6 +159,8 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 
 void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int> windowSize)
 {
+	if (pInputContext->get_key_just_pressed(keyboard::Key::Escape)) m_pScreens->pop();
+
 	pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, aspectRatio);
 
 	pGameScene->draw(windowSize);
@@ -179,10 +173,12 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 
 	for (auto& city : cities) city.update(deltaTime);
 	static int i = 0;
-	pText->update_text(std::to_wstring(i++) + L"?!.あ");
+	pText->update_text(std::to_wstring(i++));
 
 	switch (m_Mode)
 	{
+		if (pInputContext->get_key_just_pressed(keyboard::Key::Escape)) {}
+
 		case mode::playing:
 		{
 			bird.update(deltaTime, pipes);

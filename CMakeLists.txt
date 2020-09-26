@@ -24,6 +24,7 @@ jfc_project(executable
         
         ${gdkgraphics_INCLUDE_DIRECTORIES} 
         ${gdkinput_INCLUDE_DIRECTORIES} 
+        ${gdktextrenderer_INCLUDE_DIRECTORIES} 
         ${simpleglfw_INCLUDE_DIRECTORIES}
 
     PRIVATE_INCLUDE_DIRECTORIES
@@ -32,6 +33,7 @@ jfc_project(executable
     LIBRARIES
         ${gdkgraphics_LIBRARIES}
         ${gdkinput_LIBRARIES}
+        ${gdktextrenderer_LIBRARIES}
         ${simpleglfw_LIBRARIES}
 
     SOURCE_LIST
@@ -46,10 +48,10 @@ jfc_project(executable
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
         
 		# Move these to a new repo: gdk-text-renderer
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamic_text_renderer.cpp 
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/static_text_renderer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_map.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_renderer.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamic_text_renderer.cpp 
+#        ${CMAKE_CURRENT_SOURCE_DIR}/src/static_text_renderer.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_map.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_renderer.cpp
 )
 
 if (JFC_BUILD_TESTS)

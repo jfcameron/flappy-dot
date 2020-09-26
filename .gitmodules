@@ -10,3 +10,6 @@
 [submodule "thirdparty/gdk-input"]
 	path = thirdparty/gdk-input
 	url = https://github.com/jfcameron/gdk-input.git
+[submodule "thirdparty/gdk-text-renderer"]
+	path = thirdparty/gdk-text-renderer
+	url = https://github.com/jfcameron/gdk-text-renderer.git

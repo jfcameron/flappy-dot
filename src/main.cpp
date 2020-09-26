@@ -11,6 +11,7 @@
 #include <jfc/glfw_window.h>
 #include <jfc/game_screen.h>
 #include <jfc/main_menu_screen.h>
+#include <jfc/icon.png.h>
 
 #include <GLFW/glfw3.h>
 
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
 	std::shared_ptr<gdk::screen> pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, pInputContext));
 	std::shared_ptr<gdk::screen> pMainMenuScreen = std::make_shared<gdk::main_menu_screen>(gdk::main_menu_screen());
 
-	screens.push(pGameScreen);
+	screens.push(pMainMenuScreen);
 	
 	while (!window.shouldClose())
 	{

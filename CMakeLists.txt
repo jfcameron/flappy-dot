@@ -23,6 +23,7 @@ jfc_project(executable
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         
         ${gdkgraphics_INCLUDE_DIRECTORIES} 
+        ${gdkaudio_INCLUDE_DIRECTORIES} 
         ${gdkinput_INCLUDE_DIRECTORIES} 
         ${gdktextrenderer_INCLUDE_DIRECTORIES} 
         ${simpleglfw_INCLUDE_DIRECTORIES}
@@ -32,6 +33,7 @@ jfc_project(executable
 
     LIBRARIES
         ${gdkgraphics_LIBRARIES}
+        ${gdkaudio_LIBRARIES} 
         ${gdkinput_LIBRARIES}
         ${gdktextrenderer_LIBRARIES}
         ${simpleglfw_LIBRARIES}
@@ -46,13 +48,11 @@ jfc_project(executable
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-        
-		# Move these to a new repo: gdk-text-renderer
-#        ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamic_text_renderer.cpp 
-#        ${CMAKE_CURRENT_SOURCE_DIR}/src/static_text_renderer.cpp
-#        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_map.cpp
-#        ${CMAKE_CURRENT_SOURCE_DIR}/src/text_renderer.cpp
 )
+
+# Hides the console window when building for windows
+#set_target_properties(flappy PROPERTIES 
+#    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
 
 if (JFC_BUILD_TESTS)
     add_subdirectory(test)

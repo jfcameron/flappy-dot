@@ -13,3 +13,6 @@
 [submodule "thirdparty/gdk-text-renderer"]
 	path = thirdparty/gdk-text-renderer
 	url = https://github.com/jfcameron/gdk-text-renderer.git
+[submodule "thirdparty/gdk-audio"]
+	path = thirdparty/gdk-audio
+	url = https://github.com/jfcameron/gdk-audio.git

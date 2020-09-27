@@ -24,14 +24,14 @@ namespace gdk
 
 		std::shared_ptr<static_text_renderer> m_TitleText;
 		std::shared_ptr<static_text_renderer> m_VersionText;
-
-
+		std::shared_ptr<static_text_renderer> m_PromptText;
 
 		screen_stack_ptr_type m_Screens;
 		screen_ptr_type m_GameScreen;
 
 		flappy::scenery scenery;
 
+		int m_PrompCounter = 0;
 
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;

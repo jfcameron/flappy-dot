@@ -91,11 +91,25 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		L"artwork by ld:\ropengameart.org/users/ld\r\rcode by jfcameron:\rgithub.com/jfcameron/gdk-graphics"
 	));
 	m_VersionText->add_to_scene(m_pMainScene);
+
+	m_PromptText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::center,
+		L"space to start"
+	));
+	m_PromptText->set_model_matrix({ 0, 0.0f, 0 }, {}, { 0.075f });
+	m_PromptText->add_to_scene(m_pMainScene);
 }
 
 void main_menu_screen::update(float delta, float aspectRatio, std::pair<int, int> windowSize)
 {
 	m_VersionText->set_model_matrix({ -0.5f * aspectRatio, -0.5, 0 }, {}, { 0.04 });
+
+	if (++m_PrompCounter % 32 == 0)
+	{
+		if (m_PromptText->isHidden()) m_PromptText->show();
+		else m_PromptText->hide();
+	}
 
 	m_pMainCamera->set_orthographic_projection(2, 2, 0.0075, 10, aspectRatio);
 

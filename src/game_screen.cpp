@@ -182,8 +182,6 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 
 	for (auto& city : cities) city.update(deltaTime);
 	
-	//sstatic int i = 0;
-	
 	pText->update_text(std::to_wstring(deltaTime * 1000));
 
 	switch (m_Mode)

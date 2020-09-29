@@ -1,5 +1,6 @@
 ﻿#include <jfc/game_screen.h>
 #include <jfc/Text_Sheet.png.h>
+#include <jfc/Very_Short_Work.ogg.h>
 
 #include <memory>
 #include <chrono>
@@ -15,21 +16,27 @@ static size_t increment_pipeCounter(size_t &pipeCounter, size_t size)
 
 game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
+	audio::context::context_shared_ptr_type aAudio,
 	screen_stack_ptr_type aScreens)
 	: pInputContext(aInputContext)
 	, m_pScreens(aScreens)
 	, pGameScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
-	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext))
+	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio))
 {
+	m_BGSound = aAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
+		Very_Short_Work_ogg, Very_Short_Work_ogg + sizeof(Very_Short_Work_ogg) / sizeof(Very_Short_Work_ogg[0])));
+	
+	m_BGEmitter = aAudio->make_emitter(m_BGSound);
+
 	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
 	pGameScene->add_camera(pMainCamera);
 
 	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pGameScene));
 
-	for (int i(0); i < 1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene));
+	for (int i(0); i <  1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene));
 
 	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene));
 	
@@ -159,6 +166,8 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 
 void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int> windowSize)
 {
+	if (!m_BGEmitter->isPlaying()) m_BGEmitter->play();
+
 	if (pInputContext->get_key_just_pressed(keyboard::Key::Escape)) m_pScreens->pop();
 
 	pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, aspectRatio);
@@ -172,8 +181,10 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 	for (auto &cloud : clouds) cloud.update(deltaTime);
 
 	for (auto& city : cities) city.update(deltaTime);
-	static int i = 0;
-	pText->update_text(std::to_wstring(i++));
+	
+	//sstatic int i = 0;
+	
+	pText->update_text(std::to_wstring(deltaTime * 1000));
 
 	switch (m_Mode)
 	{

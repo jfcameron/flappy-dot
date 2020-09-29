@@ -20,6 +20,7 @@
 #include <jfc/Coins.ogg.h>
 
 #include <chrono>
+#include <thread>
 
 using namespace gdk;
 
@@ -33,14 +34,11 @@ int main(int argc, char** argv)
 	auto pInputContext = input::context::context_shared_ptr_type(std::move(
 		input::context::make(window.getPointerToGLFWWindow())));
 
-	auto pAudioContext = audio::context::implementation_shared_ptr_type(std::move(
+	auto pAudioContext = audio::context::context_shared_ptr_type(std::move(
 		audio::context::make(audio::context::implementation::openal)));
 
-	std::shared_ptr<std::vector<unsigned char>> pdata(new
-		std::vector<unsigned char>(
+	auto pSound = pAudioContext->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
 		Coins_ogg, Coins_ogg + sizeof(Coins_ogg) / sizeof(Coins_ogg[0])));
-
-	auto pSound = pAudioContext->make_sound(audio::audio_data(audio::audio_data::encoding_type::vorbis, pdata));
 
 	auto pEmitter = pAudioContext->make_emitter(pSound);
 
@@ -48,15 +46,19 @@ int main(int argc, char** argv)
 
 	screen_stack_ptr_type pScreens = std::make_shared<std::stack<std::shared_ptr<gdk::screen>>>(std::stack<std::shared_ptr<gdk::screen>>());
 
-	screen_ptr_type pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, pInputContext, pScreens));
+	screen_ptr_type pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, 
+		pInputContext, 
+		pAudioContext,
+		pScreens));
+
 	screen_ptr_type pMainMenuScreen = std::make_shared<gdk::main_menu_screen>(gdk::main_menu_screen(pGraphicsContext, 
 		pInputContext,
+		pAudioContext,
 		pScreens,
 		pGameScreen));
 
 	pScreens->push(pMainMenuScreen);
 	
-	double currentTime(0), lastTime(0);
 	using namespace std::chrono;
 
 	float deltaTime(0);
@@ -75,13 +77,15 @@ int main(int argc, char** argv)
 
 		window.swapBuffer();
 
+		//if (!pEmitter->isPlaying()) pEmitter->play();
+
 		while (true)
 		{
 			steady_clock::time_point t2(steady_clock::now());
 		
 			duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 
-			if (deltaTime = time_span.count(); deltaTime > 0.016)
+			if (deltaTime = time_span.count(); deltaTime > 0.01666667)
 			{
 				deltaTime *= 0.8; // recalibrate magic numbers so this isnt here
 

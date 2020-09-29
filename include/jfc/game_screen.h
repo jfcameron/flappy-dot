@@ -7,6 +7,8 @@
 
 #include <gdk/graphics_context.h>
 #include <gdk/input_context.h>
+#include <gdk/audio/context.h>
+
 #include <gdk/scene.h>
 
 #include <gdk/text_map.h>
@@ -65,6 +67,9 @@ namespace gdk
 
 		std::shared_ptr<dynamic_text_renderer> pText;
 
+		gdk::audio::context::sound_shared_ptr_type m_BGSound;
+		gdk::audio::context::emitter_shared_ptr_type m_BGEmitter;
+
 		// Pipe control
 		size_t pipeCounter = 0;
 		float pipeDelay = 0;
@@ -76,6 +81,7 @@ namespace gdk
 
 		game_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,
+			audio::context::context_shared_ptr_type aAudio,
 			screen_stack_ptr_type aScreens);
 
 		virtual ~game_screen() = default;

@@ -7,6 +7,8 @@
 
 #include <gdk/graphics_context.h>
 #include <gdk/input_context.h>
+#include <gdk/audio/context.h>
+
 #include <gdk/static_text_renderer.h>
 
 #include <jfc/screen_stack.h>
@@ -22,6 +24,7 @@ namespace gdk
 
 		std::shared_ptr<gdk::camera> m_pMainCamera;
 
+
 		std::shared_ptr<static_text_renderer> m_TitleText;
 		std::shared_ptr<static_text_renderer> m_VersionText;
 		std::shared_ptr<static_text_renderer> m_PromptText;
@@ -33,11 +36,16 @@ namespace gdk
 
 		int m_PrompCounter = 0;
 
+		audio::context::emitter_shared_ptr_type pEmitter;
+		audio::context::emitter_shared_ptr_type pEmitter2;
+		std::shared_ptr<audio::sound> pSound;
+
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 
 		main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,
+			audio::context::context_shared_ptr_type aAudioContext,
 			screen_stack_ptr_type aScreens,
 			screen_ptr_type aGameScreen);
 

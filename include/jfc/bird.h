@@ -4,6 +4,7 @@
 #define JFC_FLAPPY_BIRD_H
 
 #include <gdk/graphics_context.h>
+#include <gdk/audio/context.h>
 #include <gdk/scene.h>
 #include <gdk/entity.h>
 
@@ -24,6 +25,8 @@ namespace flappy
 		std::shared_ptr<gdk::entity> m_Entity;
 		std::shared_ptr<gdk::material> m_Material;
 
+		std::shared_ptr<gdk::audio::emitter> m_JumpSFX;
+
 		float accumulator = 0;
 		int frameIndex = 0;
 
@@ -36,7 +39,8 @@ namespace flappy
 
 		bird(gdk::graphics::context::context_shared_ptr_type pContext,
 			gdk::graphics::context::scene_shared_ptr_type pScene,
-			gdk::input::context::context_shared_ptr_type pInput);
+			gdk::input::context::context_shared_ptr_type pInput,
+			gdk::audio::context::context_shared_ptr_type pAudio);
 	};
 }
 

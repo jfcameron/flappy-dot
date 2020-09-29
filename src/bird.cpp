@@ -2,6 +2,7 @@
 #include <jfc/bird.h>
 
 #include <jfc/Sprite_Sheet.png.h>
+#include <jfc/jump.ogg.h>
 
 using namespace gdk;
 using namespace flappy;
@@ -17,7 +18,8 @@ static std::shared_ptr<gdk::entity> coolEntity;
 
 bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene,
-	gdk::input::context::context_shared_ptr_type pInput)
+	gdk::input::context::context_shared_ptr_type pInput,
+	gdk::audio::context::context_shared_ptr_type pAudio)
 	: m_pInput(pInput)
 {
 	m_Position.x = -0.25f;
@@ -33,6 +35,11 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 
 	m_Entity = decltype(m_Entity)(std::move(pContext->make_entity(std::shared_ptr<model>(pContext->get_quad_model()), m_Material)));
 	pScene->add_entity(m_Entity);
+
+	auto pSound = pAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
+		jump_ogg, jump_ogg + sizeof(jump_ogg) / sizeof(jump_ogg[0])));
+
+	m_JumpSFX = pAudio->make_emitter(pSound);
 }
 
 void bird::update(float delta, std::vector<pipe> pipes)
@@ -52,10 +59,11 @@ void bird::update(float delta, std::vector<pipe> pipes)
 	// Handle acceleration
 	if (m_VerticalSpeed > -1.f) m_VerticalSpeed -= delta * 0.1;
 
-	static float zxcv = 0;
 	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
 	{
 		m_VerticalSpeed = 0.0225f;
+
+		m_JumpSFX->play();
 	}
 
 	m_Position.y += m_VerticalSpeed;

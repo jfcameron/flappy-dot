@@ -4,11 +4,15 @@
 #include <gdk/text_map.h>
 
 #include <jfc/Text_Sheet.png.h>
+#include <jfc/POL_chubby_cat_short.ogg.h>
 
 using namespace gdk;
 
+audio::context::context_shared_ptr_type pAudioContext;
+
 main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
+	audio::context::context_shared_ptr_type aAudioContext,
 	screen_stack_ptr_type aScreens,
 	screen_ptr_type aGameScreen)
 	: m_pInput(aInputContext)
@@ -18,6 +22,14 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	, m_pMainCamera(std::shared_ptr<gdk::camera>(std::move(aGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(aGraphicsContext, aGraphicsContext->get_alpha_cutoff_shader(), m_pMainScene))
 {
+	pAudioContext = aAudioContext;
+
+	pSound = aAudioContext->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
+		POL_chubby_cat_short_ogg, POL_chubby_cat_short_ogg + sizeof(POL_chubby_cat_short_ogg) / sizeof(POL_chubby_cat_short_ogg[0])));
+
+	pEmitter = aAudioContext->make_emitter(pSound);
+	//pEmitter2 = aAudioContext->make_emitter(pSound);
+	
 	m_pMainScene->add_camera(m_pMainCamera);
 
 	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(aGraphicsContext->make_texture(
@@ -103,6 +115,25 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 void main_menu_screen::update(float delta, float aspectRatio, std::pair<int, int> windowSize)
 {
+	/*if (!pEmitter->isPlaying() && !pEmitter2->isPlaying())
+	{
+		pEmitter2->play();
+	}*/
+
+	if (m_pInput->get_key_just_pressed(keyboard::Key::A))
+	{
+		pEmitter->play();
+	}
+	
+	if (m_pInput->get_key_just_pressed(keyboard::Key::S))
+	{
+		pEmitter->stop();
+	}
+
+
+
+	if (m_pInput->get_key_just_pressed(keyboard::Key::B)) pEmitter2->play();
+
 	m_VersionText->set_model_matrix({ -0.5f * aspectRatio, -0.5, 0 }, {}, { 0.04 });
 
 	if (++m_PrompCounter % 32 == 0)

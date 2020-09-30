@@ -1,6 +1,5 @@
 ﻿#include <jfc/game_screen.h>
 #include <jfc/Text_Sheet.png.h>
-#include <jfc/Very_Short_Work.ogg.h>
 
 #include <memory>
 #include <chrono>
@@ -25,11 +24,6 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
 	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio))
 {
-	m_BGSound = aAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
-		Very_Short_Work_ogg, Very_Short_Work_ogg + sizeof(Very_Short_Work_ogg) / sizeof(Very_Short_Work_ogg[0])));
-	
-	m_BGEmitter = aAudio->make_emitter(m_BGSound);
-
 	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
 	pGameScene->add_camera(pMainCamera);
@@ -166,8 +160,6 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 
 void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int> windowSize)
 {
-	if (!m_BGEmitter->isPlaying()) m_BGEmitter->play();
-
 	if (pInputContext->get_key_just_pressed(keyboard::Key::Escape)) m_pScreens->pop();
 
 	pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, aspectRatio);

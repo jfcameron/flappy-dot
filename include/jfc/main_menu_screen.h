@@ -36,10 +36,6 @@ namespace gdk
 
 		int m_PrompCounter = 0;
 
-		audio::context::emitter_shared_ptr_type pEmitter;
-		audio::context::emitter_shared_ptr_type pEmitter2;
-		std::shared_ptr<audio::sound> pSound;
-
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 

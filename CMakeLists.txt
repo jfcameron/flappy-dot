@@ -1,4 +1,4 @@
-# © 2019 Joseph Cameron - All Rights Reserved
+# © 2020 Joseph Cameron - All Rights Reserved
 
 cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
@@ -48,7 +48,16 @@ jfc_project(executable
 		${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+
+    DEPENDENCIES
+        "gdkaudio"
+		"gdkgraphics"
+		"gdkinput"
+		"gdktextrenderer"
+		"simpleglfw"
 )
 
 # Hides the console window when building for windows

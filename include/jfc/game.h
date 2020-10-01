@@ -6,16 +6,82 @@
 #include <gdk/input_context.h>
 #include <gdk/intvector2.h>
 
+#include <gdk/screen.h>
+
+#include <gdk/graphics_context.h>
+#include <gdk/input_context.h>
+#include <gdk/audio/context.h>
+
+#include <gdk/scene.h>
+
+#include <gdk/text_map.h>
+#include <gdk/static_text_renderer.h>
+#include <gdk/dynamic_text_renderer.h>
+
+#include <jfc/game.h>
+
+#include <jfc/Text_Sheet.png.h>
+#include <jfc/Sprite_Sheet.png.h>
+#include <jfc/Floor.png.h>
+#include <jfc/background.h>
+#include <jfc/cloud.h>
+#include <jfc/bird.h>
+#include <jfc/city.h>
+#include <jfc/pipe.h>
+#include <jfc/screen_stack.h>
+
+#include <array>
+#include <memory>
+#include <functional>
+
 namespace flappy
 {
 	using namespace gdk;
 
 	class game final
 	{
+		//! instanced pseudo random number generator
+		std::default_random_engine m_Random;
 
+		//! ptr to the input abstraction
+		input::context::context_shared_ptr_type pInputContext;
+
+		screen_stack_ptr_type m_pScreens;
+
+		//! graphics scene where gameplay takes place
+		gdk::graphics::context::scene_shared_ptr_type pGameScene;
+
+		//! graphics scene where GUI elements are rendered
+		gdk::graphics::context::scene_shared_ptr_type pGUIScene;
+
+		std::shared_ptr<gdk::camera> pMainCamera;
+
+		flappy::scenery scenery;
+
+		flappy::bird bird;
+
+		std::vector<flappy::cloud> clouds;
+		std::vector<flappy::city> cities;
+
+		std::shared_ptr<dynamic_text_renderer> pText;
+
+		// Pipe control
+		size_t pipeCounter = 0;
+		float pipeDelay = 0;
+		std::vector<flappy::pipe> pipes;
+		std::array<std::function<void(decltype(pipes)&, decltype(pipeCounter)&, decltype(pipeDelay)&, decltype(m_Random)&)>, 6> m_PipeBehaviours;
 
 	public:
-		game(const IntVector2<short>& splitScreenSize);
+		void update(float delta, 
+			float aspectRatio, 
+			std::pair<int, int> windowSize, 
+			std::pair<float, float> vpUpperLeft, 
+			std::pair<float, float> vpSize);
+
+		game(graphics::context::context_shared_ptr_type aGraphicsContext,
+			input::context::context_shared_ptr_type aInputContext,
+			audio::context::context_shared_ptr_type aAudio,
+			screen_stack_ptr_type aScreens);
 	};
 }
 

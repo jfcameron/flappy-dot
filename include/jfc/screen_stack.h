@@ -46,6 +46,11 @@ namespace gdk
 			if (m_Screens.size()) m_Screens.top()->update(delta, windowAspectRatio, windowSize);
 		}
 
+		//! move semantics
+		screen_stack(screen_stack&&) = default;
+		//! move semantics
+		screen_stack &operator=(screen_stack&&) = default;
+
 		screen_stack(push_pop_functor_type aOnPushedFunctor, push_pop_functor_type aOnPoppedFunctor) 
 			: m_PushFunctor(aOnPushedFunctor)
 			, m_PopFunctor(aOnPoppedFunctor)

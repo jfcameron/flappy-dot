@@ -29,7 +29,7 @@ using namespace gdk;
 int main(int argc, char** argv)
 {
 	// Setting up libraries
-	auto window = std::shared_ptr<glfw_window>(new glfw_window("flappy::bird"));
+	auto window = std::shared_ptr<glfw_window>(new glfw_window("flappy dot"));
 
 	auto pGraphicsContext = graphics::context::context_shared_ptr_type(std::move(
 		graphics::context::make(graphics::context::implementation::opengl_webgl1_gles2)));
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 		pGameScreen,
 		window));
 
-	screen_to_string[pGameScreen] = "GameScreen";
+	screen_to_string[pGameScreen] = "GameScreen"; //shouldnt be using strings..
 	screen_to_string[pMainMenuScreen] = "MainMenu";
 
 	flappy::background_music_player music(pEventBus, pAudioContext);

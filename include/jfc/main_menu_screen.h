@@ -13,7 +13,6 @@
 
 #include <jfc/screen_stack.h>
 #include <jfc/background.h>
-
 #include <jfc/glfw_window.h>
 
 namespace gdk
@@ -38,10 +37,13 @@ namespace gdk
 		//! title pane, start button
 		std::shared_ptr<static_text_renderer> m_StartText;
 
-		//! title pane, credits button
+		//! title pane, players count button
+		std::shared_ptr<static_text_renderer> m_PlayersCountText;
+
+		//! main pane, credits button
 		std::shared_ptr<static_text_renderer> m_pCreditsText;
 
-		//! title pane, quit button
+		//! main pane, quit button
 		std::shared_ptr<static_text_renderer> m_pQuitText;
 
 		//! credits pane, credits text
@@ -58,7 +60,8 @@ namespace gdk
 
 		flappy::scenery scenery;
 
-
+		//! number of splitscreen players selected
+		int m_PlayerCount = 1;
 
 		//! used to hide/show current menu element
 		bool m_BlinkStatus = true;

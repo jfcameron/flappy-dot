@@ -38,88 +38,83 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(aGraphicsContext->make_texture(
 		{ Text_Sheet_png, Text_Sheet_png + sizeof Text_Sheet_png / sizeof Text_Sheet_png[0] }))));
 
-	text_map map(
-		pTextTexture,
-		{ 8, 8 },
-		{
-			{'a', {0,0}},
-			{'b', {1,0}},
-			{'c', {2,0}},
-			{'d', {3,0}},
-			{'e', {4,0}},
-			{'f', {5,0}},
-			{'g', {6,0}},
-			{'h', {7,0}},
-			{'i', {0,1}},
-			{'j', {1,1}},
-			{'k', {2,1}},
-			{'l', {3,1}},
-			{'m', {4,1}},
-			{'n', {5,1}},
-			{'o', {6,1}},
-			{'p', {7,1}},
-			{'q', {0,2}},
-			{'r', {1,2}},
-			{'s', {2,2}},
-			{'t', {3,2}},
-			{'u', {4,2}},
-			{'v', {5,2}},
-			{'w', {6,2}},
-			{'x', {7,2}},
-			{'y', {0,3}},
-			{'z', {1,3}},
-
-			{'A', {0,0}},
-			{'B', {1,0}},
-			{'C', {2,0}},
-			{'D', {3,0}},
-			{'E', {4,0}},
-			{'F', {5,0}},
-			{'G', {6,0}},
-			{'H', {7,0}},
-			{'I', {0,1}},
-			{'J', {1,1}},
-			{'K', {2,1}},
-			{'L', {3,1}},
-			{'M', {4,1}},
-			{'N', {5,1}},
-			{'O', {6,1}},
-			{'P', {7,1}},
-			{'Q', {0,2}},
-			{'R', {1,2}},
-			{'S', {2,2}},
-			{'T', {3,2}},
-			{'U', {4,2}},
-			{'V', {5,2}},
-			{'W', {6,2}},
-			{'X', {7,2}},
-			{'Y', {0,3}},
-			{'Z', {1,3}},
-
-			{'0', {3,3}},
-			{'1', {4,3}},
-			{'2', {5,3}},
-			{'3', {6,3}},
-			{'4', {7,3}},
-			{'5', {0,4}},
-			{'6', {1,4}},
-			{'7', {2,4}},
-			{'8', {3,4}},
-			{'9', {4,4}},
-
-			{'!', {2,3}},
-			{'.', {5,4}},
-			{':', {6,4}},
-			{'?', {7,3}},
-			{' ', {7,6}},
-			{'/', {0,5}},
-			{'-', {1,5}},
-		});
+	text_map map(pTextTexture, { 8, 8 },
+	{
+		{'a', {0,0}},
+		{'b', {1,0}},
+		{'c', {2,0}},
+		{'d', {3,0}},
+		{'e', {4,0}},
+		{'f', {5,0}},
+		{'g', {6,0}},
+		{'h', {7,0}},
+		{'i', {0,1}},
+		{'j', {1,1}},
+		{'k', {2,1}},
+		{'l', {3,1}},
+		{'m', {4,1}},
+		{'n', {5,1}},
+		{'o', {6,1}},
+		{'p', {7,1}},
+		{'q', {0,2}},
+		{'r', {1,2}},
+		{'s', {2,2}},
+		{'t', {3,2}},
+		{'u', {4,2}},
+		{'v', {5,2}},
+		{'w', {6,2}},
+		{'x', {7,2}},
+		{'y', {0,3}},
+		{'z', {1,3}},
+		{'A', {0,0}},
+		{'B', {1,0}},
+		{'C', {2,0}},
+		{'D', {3,0}},
+		{'E', {4,0}},
+		{'F', {5,0}},
+		{'G', {6,0}},
+		{'H', {7,0}},
+		{'I', {0,1}},
+		{'J', {1,1}},
+		{'K', {2,1}},
+		{'L', {3,1}},
+		{'M', {4,1}},
+		{'N', {5,1}},
+		{'O', {6,1}},
+		{'P', {7,1}},
+		{'Q', {0,2}},
+		{'R', {1,2}},
+		{'S', {2,2}},
+		{'T', {3,2}},
+		{'U', {4,2}},
+		{'V', {5,2}},
+		{'W', {6,2}},
+		{'X', {7,2}},
+		{'Y', {0,3}},
+		{'Z', {1,3}},
+		{'0', {3,3}},
+		{'1', {4,3}},
+		{'2', {5,3}},
+		{'3', {6,3}},
+		{'4', {7,3}},
+		{'5', {0,4}},
+		{'6', {1,4}},
+		{'7', {2,4}},
+		{'8', {3,4}},
+		{'9', {4,4}},
+		{'!', {2,3}},
+		{'.', {5,4}},
+		{':', {6,4}},
+		{'?', {7,3}},
+		{' ', {7,6}},
+		{'/', {0,5}},
+		{'-', {1,5}},
+	});
 
 	m_TitleText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,
 		text_renderer::alignment::upper_edge, 
-		L"flappy::bird"));
+		L"flappy dot"));
 	m_TitleText->set_model_matrix({ 0, 0.5f, 0 }, {}, { 0.1f });
 	m_TitleText->add_to_scene(m_pMainScene);
 
@@ -143,16 +138,25 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"start game"
 	));
-	m_StartText->set_model_matrix({ 0, 0.1f, 0 }, {}, { 0.05f });
+	m_StartText->set_model_matrix({ 0, 0.15f, 0 }, {}, { 0.05f });
 	m_StartText->add_to_scene(m_pMainScene);
 	m_StartText->hide();
+
+	m_PlayersCountText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::center,
+		L"Players"
+	));
+	m_PlayersCountText->set_model_matrix({ 0, 0.05f, 0 }, {}, { 0.05f });
+	m_PlayersCountText->add_to_scene(m_pMainScene);
+	m_PlayersCountText->hide();
 
 	m_pCreditsText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,
 		text_renderer::alignment::center,
 		L"credits"
 	));
-	m_pCreditsText->set_model_matrix({ 0, 0.0f, 0 }, {}, { 0.05f });
+	m_pCreditsText->set_model_matrix({ 0, -0.05f, 0 }, {}, { 0.05f });
 	m_pCreditsText->add_to_scene(m_pMainScene);
 	m_pCreditsText->hide();
 
@@ -161,7 +165,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"quit"
 	));
-	m_pQuitText->set_model_matrix({ 0, -0.1f, 0 }, {}, { 0.05f });
+	m_pQuitText->set_model_matrix({ 0, -0.15f, 0 }, {}, { 0.05f });
 	m_pQuitText->add_to_scene(m_pMainScene);
 	m_pQuitText->hide();
 
@@ -207,6 +211,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		main_pane->set_on_just_gained_top([&]()
 		{
 			m_StartText->show();
+			m_PlayersCountText->show();
 			m_pCreditsText->show();
 			m_pQuitText->show();
 		});
@@ -214,6 +219,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		main_pane->set_on_just_lost_top([&]()
 		{
 			m_StartText->hide();
+			m_PlayersCountText->hide();
 			m_pCreditsText->hide();
 			m_pQuitText->hide();
 
@@ -221,6 +227,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		});
 
 		auto pStartButton = main_pane->make_element();
+		auto pPlayersButton = main_pane->make_element();
 		auto pCreditsButton = main_pane->make_element();
 		auto pQuitButton = main_pane->make_element();
 
@@ -229,7 +236,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			if (m_pCurrentText) m_pCurrentText->show();
 		};
 
-		pStartButton->set_south_neighbour(pCreditsButton);
+		pStartButton->set_south_neighbour(pPlayersButton);
 		pStartButton->set_on_just_lost_focus(lostFocus);
 		pStartButton->set_on_just_gained_focus([=]()
 		{
@@ -239,12 +246,26 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		});
 		pStartButton->set_on_activated([=]()
 		{
-			std::cout << "start button pressed\n";
-
 			m_Screens->push(m_GameScreen);
 		});
 
-		pCreditsButton->set_north_neighbour(pStartButton);
+		pPlayersButton->set_north_neighbour(pStartButton);
+		pPlayersButton->set_south_neighbour(pCreditsButton);
+		pPlayersButton->set_on_just_lost_focus(lostFocus);
+		pPlayersButton->set_on_just_gained_focus([=]()
+		{
+			m_pCurrentText = m_PlayersCountText;
+			m_pCurrentText->hide();
+			m_PrompCounter = RESET_VALUE;
+		});
+		pPlayersButton->set_on_activated([=]()
+		{
+			std::cout << m_PlayerCount << "\n";
+
+			if (++m_PlayerCount > 4) m_PlayerCount = 1;
+		});
+
+		pCreditsButton->set_north_neighbour(pPlayersButton);
 		pCreditsButton->set_south_neighbour(pQuitButton);
 		pCreditsButton->set_on_just_lost_focus(lostFocus);
 		pCreditsButton->set_on_just_gained_focus([=]()
@@ -255,8 +276,6 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		});
 		pCreditsButton->set_on_activated([=]()
 		{
-			std::cout << "credits button pressed\n";
-
 			m_menu->push(credits_pane);
 		});
 

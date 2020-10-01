@@ -2,6 +2,16 @@
 
 using namespace flappy;
 
+void event_bus::add_player_count_changed_observer(decltype(m_PlayerCountChanged)::observer_weak_ptr_type pObserver)
+{
+	m_PlayerCountChanged.add_observer(pObserver);
+}
+
+void event_bus::propagate_player_count_changed_event(decltype(m_PlayerCountChanged)::event_type e)
+{
+	m_PlayerCountChanged.propagate_event(e);
+}
+
 void event_bus::add_screen_pushed_event_observer(decltype(m_ScreenPushed)::observer_weak_ptr_type pObserver)
 {
 	m_ScreenPushed.add_observer(pObserver);

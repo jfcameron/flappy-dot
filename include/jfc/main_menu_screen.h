@@ -44,15 +44,21 @@ namespace gdk
 		//! title pane, quit button
 		std::shared_ptr<static_text_renderer> m_pQuitText;
 
-		//! Used to determine which text item shoudl blink
+		//! credits pane, credits text
+		std::shared_ptr<static_text_renderer> m_pCreditsContextText;
+
+		//! Used to determine which text item should blink
 		std::shared_ptr<static_text_renderer> m_pCurrentText;
+
+		//! blink counter
+		int m_PrompCounter = 0;
 
 		screen_stack_ptr_type m_Screens;
 		screen_ptr_type m_GameScreen;
 
 		flappy::scenery scenery;
 
-		int m_PrompCounter = 0;
+
 
 		//! used to hide/show current menu element
 		bool m_BlinkStatus = true;
@@ -61,8 +67,6 @@ namespace gdk
 
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
-
-
 
 		main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,

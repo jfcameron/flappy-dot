@@ -102,16 +102,16 @@ void pane_impl::update(bool aUpInput,
 {
 	m_on_update();
 
+	if (aCancelInput)
+	{
+		if (m_menu) m_menu->pop();
+	}
+
 	if (auto currentElement = get_current_element())
 	{
 		if (aSelectInput)
 		{
 			currentElement->m_activated_functor();
-		}
-
-		if (aCancelInput)
-		{
-			if (m_menu) m_menu->pop();
 		}
 
 		if (static_cast<int>(aUpInput) + static_cast<int>(aDownInput) == 1) 
@@ -163,12 +163,12 @@ void pane_impl::just_gained_top()
 {
 	m_on_just_gained_top();
 
-	get_current_element()->m_just_gained_focus();
+	if (auto p = get_current_element()) p->m_just_gained_focus();
 }
 
 void pane_impl::just_lost_top()
 {
-	get_current_element()->m_just_lost_focus();
+	if (auto p = get_current_element()) p->m_just_lost_focus();
 
 	m_on_just_lost_top();
 }

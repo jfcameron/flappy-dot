@@ -7,6 +7,8 @@
 
 using namespace gdk;
 
+static constexpr int BLINK_RATE(26);
+
 audio::context::context_shared_ptr_type pAudioContext;
 
 main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
@@ -123,8 +125,8 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 	m_VersionText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,
-		text_renderer::alignment::left_lower_corner, 
-		L"artwork by ld:\ropengameart.org/users/ld\r\rcode by jfcameron:\rgithub.com/jfcameron/gdk-graphics"
+		text_renderer::alignment::right_lower_corner, 
+		L"code available at: github.com/jfcameron/gdk-graphics"
 	));
 	m_VersionText->add_to_scene(m_pMainScene);
 
@@ -163,12 +165,44 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	m_pQuitText->add_to_scene(m_pMainScene);
 	m_pQuitText->hide();
 
+	m_pCreditsContextText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::left_upper_corner,
+		L"artwork\n\n"
+		L" ld: opengameart.org/users/ld"
+		L"\r\r"
+		L"Music\n\n"
+		" PlayOnLoop:\n opengameart.org/users/playonloop"
+		L"\r\r"
+		" ProjectsU012:\n freesound.org/people/ProjectsU012/"
+		L"\r\r"
+		L"code\n\n"
+		L" jfcameron:\n github.com/jfcameron/"
+	));
+	
+	m_pCreditsContextText->add_to_scene(m_pMainScene);
+	m_pCreditsContextText->hide();
+
 	m_pCurrentText = m_PromptText;
 	
+	// Credits pane logic
+	auto credits_pane = pane::make_pane();
+	{
+		credits_pane->set_on_just_gained_top([=]()
+		{
+			m_pCreditsContextText->show();
+		});
+
+		credits_pane->set_on_just_lost_top([=]()
+		{
+			m_pCreditsContextText->hide();
+		});
+	}
+
 	// Main pane logic
 	auto main_pane = pane::make_pane();
 	{
-		static constexpr int RESET_VALUE(1);
+		static constexpr int RESET_VALUE(BLINK_RATE/2);
 
 		main_pane->set_on_just_gained_top([&]()
 		{
@@ -182,6 +216,8 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			m_StartText->hide();
 			m_pCreditsText->hide();
 			m_pQuitText->hide();
+
+			m_pCurrentText = nullptr;
 		});
 
 		auto pStartButton = main_pane->make_element();
@@ -190,7 +226,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 		auto lostFocus = [=]()
 		{
-			m_pCurrentText->show();
+			if (m_pCurrentText) m_pCurrentText->show();
 		};
 
 		pStartButton->set_south_neighbour(pCreditsButton);
@@ -199,7 +235,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		{
 			m_pCurrentText = m_StartText;
 			m_pCurrentText->hide();
-			//m_PrompCounter = RESET_VALUE;
+			m_PrompCounter = RESET_VALUE;
 		});
 		pStartButton->set_on_activated([=]()
 		{
@@ -215,11 +251,13 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		{
 			m_pCurrentText = m_pCreditsText;
 			m_pCurrentText->hide();
-			//m_PrompCounter = RESET_VALUE;
+			m_PrompCounter = RESET_VALUE;
 		});
 		pCreditsButton->set_on_activated([=]()
 		{
 			std::cout << "credits button pressed\n";
+
+			m_menu->push(credits_pane);
 		});
 
 		pQuitButton->set_north_neighbour(pCreditsButton);
@@ -228,7 +266,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		{
 			m_pCurrentText = m_pQuitText;
 			m_pCurrentText->hide();
-			//m_PrompCounter = RESET_VALUE;
+			m_PrompCounter = RESET_VALUE;
 		});
 		pQuitButton->set_on_activated([=]()
 		{
@@ -263,11 +301,20 @@ void main_menu_screen::update(float delta, float aspectRatio, std::pair<int, int
 {
 	m_menu->update();
 
-	if (++m_PrompCounter % 26 == 0) m_BlinkStatus = !m_BlinkStatus;
-	
-	if (m_BlinkStatus) m_pCurrentText->show(); else m_pCurrentText->hide();
+	if (++m_PrompCounter % BLINK_RATE == 0)
+	{
+		m_BlinkStatus = !m_BlinkStatus;
 
-	m_VersionText->set_model_matrix({ -0.5f * aspectRatio, -0.5, 0 }, {}, { 0.04 });
+		if (m_pCurrentText)
+		{
+			if (m_BlinkStatus) m_pCurrentText->show();
+			else m_pCurrentText->hide();
+		}
+	}
+	
+	m_VersionText->set_model_matrix({ +0.5f * aspectRatio, -0.5, 0 }, {}, { 0.035 });
+
+	m_pCreditsContextText->set_model_matrix({ -0.5f * aspectRatio, 0.35f, 0 }, {}, { 0.04f });
 
 	m_pMainCamera->set_orthographic_projection(2, 2, 0.0075, 10, aspectRatio);
 

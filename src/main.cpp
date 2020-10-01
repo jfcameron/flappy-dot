@@ -10,6 +10,7 @@
 #include <gdk/graphics_context.h>
 #include <gdk/input_context.h>
 #include <gdk/audio/context.h>
+
 #include <gdk/event_bus.h>
 
 #include <jfc/Coins.ogg.h>
@@ -28,13 +29,13 @@ using namespace gdk;
 int main(int argc, char** argv)
 {
 	// Setting up libraries
-	glfw_window window("flappy::bird");
+	auto window = std::shared_ptr<glfw_window>(new glfw_window("flappy::bird"));
 
 	auto pGraphicsContext = graphics::context::context_shared_ptr_type(std::move(
 		graphics::context::make(graphics::context::implementation::opengl_webgl1_gles2)));
 
 	auto pInputContext = input::context::context_shared_ptr_type(std::move(
-		input::context::make(window.getPointerToGLFWWindow())));
+		input::context::make(window->getPointerToGLFWWindow())));
 
 	auto pAudioContext = audio::context::context_shared_ptr_type(std::move(
 		audio::context::make(audio::context::implementation::openal)));
@@ -54,19 +55,20 @@ int main(int argc, char** argv)
 		},
 		[&](std::shared_ptr<gdk::screen> p)
 		{
-			pEventBus->propagate_screen_popped_event({ screen_to_string[p] });
+			pEventBus->propagate_screen_popped_event({ screen_to_string[p]});
 		}));
 
-	pGameScreen = std::make_shared<gdk::game_screen>(gdk::game_screen(pGraphicsContext, 
-		pInputContext, 
+	pGameScreen = decltype(pGameScreen)(new gdk::game_screen(pGraphicsContext,
+		pInputContext,
 		pAudioContext,
 		pScreens));
 
-	pMainMenuScreen = std::make_shared<gdk::main_menu_screen>(gdk::main_menu_screen(pGraphicsContext, 
+	pMainMenuScreen = decltype(pMainMenuScreen)(new gdk::main_menu_screen(pGraphicsContext,
 		pInputContext,
 		pAudioContext,
 		pScreens,
-		pGameScreen));
+		pGameScreen,
+		window));
 
 	screen_to_string[pGameScreen] = "GameScreen";
 	screen_to_string[pMainMenuScreen] = "MainMenu";
@@ -85,8 +87,8 @@ int main(int argc, char** argv)
 
 	// game loop
 	float deltaTime(0);
-
-	while (!window.shouldClose())
+	
+	while (!window->shouldClose())
 	{
 		using namespace std::chrono;
 
@@ -100,9 +102,9 @@ int main(int argc, char** argv)
 
 		pAudioContext->update();
 
-		pScreens->update(deltaTime, window.getAspectRatio(), window.getWindowSize());
+		pScreens->update(deltaTime, window->getAspectRatio(), window->getWindowSize());
 
-		window.swapBuffer();
+		window->swapBuffer();
 
 		while (true)
 		{
@@ -110,12 +112,7 @@ int main(int argc, char** argv)
 		
 			duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 
-			if (deltaTime = time_span.count(); deltaTime > 0.01666667)
-			{
-				deltaTime *= 0.8; // recalibrate magic numbers so this isnt here
-
-				break;
-			}
+			if (deltaTime = time_span.count(); deltaTime > 0.01666667) break;
 		}
 	}
 

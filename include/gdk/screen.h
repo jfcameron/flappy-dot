@@ -12,6 +12,12 @@ namespace gdk
 	public:
 		virtual void update(float delta, float windowAspectRatio, std::pair<int, int> windowSize) = 0;
 
+		//screen() = default;
+
+		//screen(screen&&) = default;
+
+		screen& operator=(screen&&) = default;
+
 		virtual ~screen() = default;
 	};
 }

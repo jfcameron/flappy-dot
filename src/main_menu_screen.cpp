@@ -7,53 +7,30 @@
 
 using namespace gdk;
 
-class box
-{
-	gdk::Vector2<float> m_BottomLeft;
-	gdk::Vector2<float> m_UpperRight;
-};
-
-class element
-{
-public:
-
-private:
-	box m_TouchBox;
-
-public:
-
-};
-
-class pane
-{
-public:
-	std::vector<element> m_elements;
-
-private:
-
-public:
-
-};
-
-std::stack<pane>;
-
-
 audio::context::context_shared_ptr_type pAudioContext;
 
 main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
 	audio::context::context_shared_ptr_type aAudioContext,
 	screen_stack_ptr_type aScreens,
-	screen_ptr_type aGameScreen)
+	screen_ptr_type aGameScreen,
+	std::shared_ptr<glfw_window> aGLFWWindow)
 	: m_pInput(aInputContext)
 	, m_Screens(aScreens)
 	, m_GameScreen(aGameScreen)
 	, m_pMainScene(graphics::context::scene_shared_ptr_type(std::move(aGraphicsContext->make_scene())))
 	, m_pMainCamera(std::shared_ptr<gdk::camera>(std::move(aGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(aGraphicsContext, aGraphicsContext->get_alpha_cutoff_shader(), m_pMainScene))
+	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::UpArrow);},
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::DownArrow);},
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::LeftArrow);},
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::RightArrow);},
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::A);},
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::S);})))
 {
 	pAudioContext = aAudioContext;
-	
+
 	m_pMainScene->add_camera(m_pMainCamera);
 
 	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(aGraphicsContext->make_texture(
@@ -71,7 +48,6 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			{'f', {5,0}},
 			{'g', {6,0}},
 			{'h', {7,0}},
-
 			{'i', {0,1}},
 			{'j', {1,1}},
 			{'k', {2,1}},
@@ -80,7 +56,6 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			{'n', {5,1}},
 			{'o', {6,1}},
 			{'p', {7,1}},
-
 			{'q', {0,2}},
 			{'r', {1,2}},
 			{'s', {2,2}},
@@ -89,23 +64,48 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			{'v', {5,2}},
 			{'w', {6,2}},
 			{'x', {7,2}},
-
 			{'y', {0,3}},
 			{'z', {1,3}},
-			{'!', {2,3}},
+
+			{'A', {0,0}},
+			{'B', {1,0}},
+			{'C', {2,0}},
+			{'D', {3,0}},
+			{'E', {4,0}},
+			{'F', {5,0}},
+			{'G', {6,0}},
+			{'H', {7,0}},
+			{'I', {0,1}},
+			{'J', {1,1}},
+			{'K', {2,1}},
+			{'L', {3,1}},
+			{'M', {4,1}},
+			{'N', {5,1}},
+			{'O', {6,1}},
+			{'P', {7,1}},
+			{'Q', {0,2}},
+			{'R', {1,2}},
+			{'S', {2,2}},
+			{'T', {3,2}},
+			{'U', {4,2}},
+			{'V', {5,2}},
+			{'W', {6,2}},
+			{'X', {7,2}},
+			{'Y', {0,3}},
+			{'Z', {1,3}},
 
 			{'0', {3,3}},
 			{'1', {4,3}},
 			{'2', {5,3}},
 			{'3', {6,3}},
 			{'4', {7,3}},
-
 			{'5', {0,4}},
 			{'6', {1,4}},
 			{'7', {2,4}},
 			{'8', {3,4}},
 			{'9', {4,4}},
 
+			{'!', {2,3}},
 			{'.', {5,4}},
 			{':', {6,4}},
 			{'?', {7,3}},
@@ -135,26 +135,143 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	));
 	m_PromptText->set_model_matrix({ 0, 0.0f, 0 }, {}, { 0.075f });
 	m_PromptText->add_to_scene(m_pMainScene);
+
+	m_StartText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::center,
+		L"start game"
+	));
+	m_StartText->set_model_matrix({ 0, 0.1f, 0 }, {}, { 0.05f });
+	m_StartText->add_to_scene(m_pMainScene);
+	m_StartText->hide();
+
+	m_pCreditsText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::center,
+		L"credits"
+	));
+	m_pCreditsText->set_model_matrix({ 0, 0.0f, 0 }, {}, { 0.05f });
+	m_pCreditsText->add_to_scene(m_pMainScene);
+	m_pCreditsText->hide();
+
+	m_pQuitText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::center,
+		L"quit"
+	));
+	m_pQuitText->set_model_matrix({ 0, -0.1f, 0 }, {}, { 0.05f });
+	m_pQuitText->add_to_scene(m_pMainScene);
+	m_pQuitText->hide();
+
+	m_pCurrentText = m_PromptText;
+	
+	// Main pane logic
+	auto main_pane = pane::make_pane();
+	{
+		static constexpr int RESET_VALUE(1);
+
+		main_pane->set_on_just_gained_top([&]()
+		{
+			m_StartText->show();
+			m_pCreditsText->show();
+			m_pQuitText->show();
+		});
+
+		main_pane->set_on_just_lost_top([&]()
+		{
+			m_StartText->hide();
+			m_pCreditsText->hide();
+			m_pQuitText->hide();
+		});
+
+		auto pStartButton = main_pane->make_element();
+		auto pCreditsButton = main_pane->make_element();
+		auto pQuitButton = main_pane->make_element();
+
+		auto lostFocus = [=]()
+		{
+			m_pCurrentText->show();
+		};
+
+		pStartButton->set_south_neighbour(pCreditsButton);
+		pStartButton->set_on_just_lost_focus(lostFocus);
+		pStartButton->set_on_just_gained_focus([=]()
+		{
+			m_pCurrentText = m_StartText;
+			m_pCurrentText->hide();
+			//m_PrompCounter = RESET_VALUE;
+		});
+		pStartButton->set_on_activated([=]()
+		{
+			std::cout << "start button pressed\n";
+
+			m_Screens->push(m_GameScreen);
+		});
+
+		pCreditsButton->set_north_neighbour(pStartButton);
+		pCreditsButton->set_south_neighbour(pQuitButton);
+		pCreditsButton->set_on_just_lost_focus(lostFocus);
+		pCreditsButton->set_on_just_gained_focus([=]()
+		{
+			m_pCurrentText = m_pCreditsText;
+			m_pCurrentText->hide();
+			//m_PrompCounter = RESET_VALUE;
+		});
+		pCreditsButton->set_on_activated([=]()
+		{
+			std::cout << "credits button pressed\n";
+		});
+
+		pQuitButton->set_north_neighbour(pCreditsButton);
+		pQuitButton->set_on_just_lost_focus(lostFocus);
+		pQuitButton->set_on_just_gained_focus([=]()
+		{
+			m_pCurrentText = m_pQuitText;
+			m_pCurrentText->hide();
+			//m_PrompCounter = RESET_VALUE;
+		});
+		pQuitButton->set_on_activated([=]()
+		{
+			aGLFWWindow->close();
+		});
+	}
+
+	// Title pane logic
+	auto title_pane = pane::make_pane();
+	{
+		title_pane->set_on_just_lost_top([&]()
+		{
+			m_PromptText->hide();
+		});
+		title_pane->set_on_just_gained_top([&]()
+		{
+			m_pCurrentText = m_PromptText;
+		});
+
+		auto pStartPrompt = title_pane->make_element();
+
+		pStartPrompt->set_on_activated([&, main_pane]()
+		{
+			m_menu->push(main_pane);
+		});
+	}
+
+	m_menu->push(title_pane);
 }
 
 void main_menu_screen::update(float delta, float aspectRatio, std::pair<int, int> windowSize)
 {
-	m_VersionText->set_model_matrix({ -0.5f * aspectRatio, -0.5, 0 }, {}, { 0.04 });
+	m_menu->update();
 
-	if (++m_PrompCounter % 32 == 0)
-	{
-		if (m_PromptText->isHidden()) m_PromptText->show();
-		else m_PromptText->hide();
-	}
+	if (++m_PrompCounter % 26 == 0) m_BlinkStatus = !m_BlinkStatus;
+	
+	if (m_BlinkStatus) m_pCurrentText->show(); else m_pCurrentText->hide();
+
+	m_VersionText->set_model_matrix({ -0.5f * aspectRatio, -0.5, 0 }, {}, { 0.04 });
 
 	m_pMainCamera->set_orthographic_projection(2, 2, 0.0075, 10, aspectRatio);
 
 	m_pMainScene->draw(windowSize);
 
 	scenery.update(delta);
-
-	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
-	{
-		m_Screens->push(m_GameScreen);
-	}
 }

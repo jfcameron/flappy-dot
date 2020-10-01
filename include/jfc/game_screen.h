@@ -3,7 +3,7 @@
 #ifndef FLAPPY_GAME_SCREEN_H
 #define FLAPPY_GAME_SCREEN_H
 
-#include <jfc/screen.h>
+#include <gdk/screen.h>
 
 #include <gdk/graphics_context.h>
 #include <gdk/input_context.h>

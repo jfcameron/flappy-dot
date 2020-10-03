@@ -9,6 +9,8 @@
 #include <gdk/model.h>
 #include <gdk/input_context.h>
 
+#include <jfc/assets.h>
+
 #include <random>
 #include <array>
 
@@ -59,7 +61,8 @@ namespace flappy
 		void set_up(const decltype(m_Position)& aPosition, const decltype(m_Rotation) aRotation, const set_up_model &aModel);
 
 		pipe(gdk::graphics::context::context_shared_ptr_type pContext,
-			gdk::graphics::context::scene_shared_ptr_type pScene);
+			gdk::graphics::context::scene_shared_ptr_type pScene,
+			flappy::assets::shared_ptr aAssets);
 
 		~pipe() = default;
 	};

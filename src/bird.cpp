@@ -19,27 +19,23 @@ static std::shared_ptr<gdk::entity> coolEntity;
 bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene,
 	gdk::input::context::context_shared_ptr_type pInput,
-	gdk::audio::context::context_shared_ptr_type pAudio)
+	gdk::audio::context::context_shared_ptr_type pAudio,
+	flappy::assets::shared_ptr aAssets)
 	: m_pInput(pInput)
 {
 	m_Position.x = -0.25f;
 
 	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
 
-	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
-		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] })));
-
-	m_Material->setTexture("_Texture", pTexture);
+	m_Material->setTexture("_Texture", aAssets->get_spritesheet());
 	m_Material->setVector2("_UVScale", { 0.25, 0.245 });
 	m_Material->setVector2("_UVOffset", { 0, 0 });
 
 	m_Entity = decltype(m_Entity)(std::move(pContext->make_entity(std::shared_ptr<model>(pContext->get_quad_model()), m_Material)));
+
 	pScene->add_entity(m_Entity);
 
-	auto pSound = pAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
-		jump_ogg, jump_ogg + sizeof(jump_ogg) / sizeof(jump_ogg[0])));
-
-	m_JumpSFX = pAudio->make_emitter(pSound);
+	m_JumpSFX = pAudio->make_emitter(aAssets->get_flapsound());
 }
 
 void bird::update(float delta, std::vector<pipe> pipes)
@@ -68,7 +64,9 @@ void bird::update(float delta, std::vector<pipe> pipes)
 
 	m_Position.y += m_VerticalSpeed;
 
-	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, 0 }, { {0, 0, -m_VerticalSpeed * 60} }, { 0.2, 0.2, 0 });
+	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, 0 }, 
+		{ {0, 0, -m_VerticalSpeed * 60} }, 
+		{ 0.2, 0.2, 0 });
 }
 
 gdk::graphics_mat4x4_type bird::get_world_position()

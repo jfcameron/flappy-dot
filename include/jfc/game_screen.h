@@ -27,6 +27,7 @@
 #include <jfc/pipe.h>
 #include <jfc/screen_stack.h>
 #include <jfc/flappy_event_bus.h>
+#include <jfc/assets.h>
 
 #include <array>
 #include <memory>
@@ -34,6 +35,7 @@
 
 namespace gdk
 {
+	// TOOD: instead of popped/pushed, swithc to gained_top, lost_top.
 	class game_screen final : public screen
 	{
 		/// \brief collection of games,
@@ -62,7 +64,8 @@ namespace gdk
 			input::context::context_shared_ptr_type aInputContext,
 			audio::context::context_shared_ptr_type aAudio,
 			screen_stack_ptr_type aScreens,
-			std::shared_ptr<flappy::event_bus> aEventBus);
+			std::shared_ptr<flappy::event_bus> aEventBus,
+			flappy::assets::shared_ptr aAssets);
 
 		virtual ~game_screen() = default;
 	};

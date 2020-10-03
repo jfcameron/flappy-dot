@@ -13,6 +13,7 @@
 
 #include <gdk/event_bus.h>
 
+#include <jfc/assets.h>
 #include <jfc/Coins.ogg.h>
 #include <jfc/glfw_window.h>
 #include <jfc/game_screen.h>
@@ -40,6 +41,9 @@ int main(int argc, char** argv)
 	auto pAudioContext = audio::context::context_shared_ptr_type(std::move(
 		audio::context::make(audio::context::implementation::openal)));
 
+	auto pAssets = std::shared_ptr<flappy::assets>(new flappy::assets(pGraphicsContext, 
+		pAudioContext));
+
 	// Setting up top level game abstractions
 	auto pEventBus = std::make_shared<flappy::event_bus>(flappy::event_bus());
 
@@ -62,7 +66,8 @@ int main(int argc, char** argv)
 		pInputContext,
 		pAudioContext,
 		pScreens,
-		pEventBus));
+		pEventBus,
+		pAssets));
 
 	pMainMenuScreen = decltype(pMainMenuScreen)(new gdk::main_menu_screen(pGraphicsContext,
 		pInputContext,
@@ -70,7 +75,8 @@ int main(int argc, char** argv)
 		pScreens,
 		pGameScreen,
 		window,
-		pEventBus));
+		pEventBus,
+		pAssets));
 
 	screen_to_string[pGameScreen] = "GameScreen"; //TODO: remove this map, just use ptr directly. no value to strings here
 	screen_to_string[pMainMenuScreen] = "MainMenu";
@@ -80,14 +86,8 @@ int main(int argc, char** argv)
 	pScreens->push(pMainMenuScreen);
 
 	// play a start up noise
-	auto pSound = pAudioContext->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
-		Coins_ogg, Coins_ogg + sizeof(Coins_ogg) / sizeof(Coins_ogg[0])));
-
-	auto pEmitter = pAudioContext->make_emitter(pSound);
-
+	auto pEmitter = pAudioContext->make_emitter(pAssets->get_coin_sound());
 	pEmitter->play();
-
-	std::cout << pGameScreen << ", " << pGameScreen << "\n";
 
 	for (float deltaTime(0); !window->shouldClose();)
 	{
@@ -103,7 +103,9 @@ int main(int argc, char** argv)
 
 		pAudioContext->update();
 
-		pScreens->update(deltaTime, window->getAspectRatio(), window->getWindowSize());
+		pScreens->update(deltaTime, 
+			window->getAspectRatio(), 
+			window->getWindowSize());
 
 		window->swapBuffer();
 

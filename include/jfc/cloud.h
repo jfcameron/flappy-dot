@@ -7,8 +7,9 @@
 #include <gdk/scene.h>
 #include <gdk/entity.h>
 
-#include <random>
+#include <jfc/assets.h>
 
+#include <random>
 #include <array>
 
 namespace flappy
@@ -37,7 +38,8 @@ namespace flappy
 		void update(const float delta);
 
 		cloud(gdk::graphics::context::context_shared_ptr_type pContext,
-			gdk::graphics::context::scene_shared_ptr_type pScene);
+			gdk::graphics::context::scene_shared_ptr_type pScene,
+			flappy::assets::shared_ptr aAssets);
 		~cloud() = default;
 	};
 };

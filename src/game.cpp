@@ -17,19 +17,17 @@ static size_t increment_pipeCounter(size_t& pipeCounter, size_t size)
 	return pipeCounter;
 }
 
-bool game::blar()
-{
-	return pInputContext->get_key_down(keyboard::Key::B);
-}
-
 game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
-	audio::context::context_shared_ptr_type aAudio)
+	audio::context::context_shared_ptr_type aAudio,
+	screen_stack_ptr_type aScreens,
+	flappy::assets::shared_ptr aAssets)
 	: pInputContext(aInputContext)
 	, pGameScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
-	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
-	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio))
+	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene, aAssets))
+	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio, aAssets))
+	, m_screens(aScreens)
 	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
 		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::UpArrow);},
 		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::DownArrow);},
@@ -38,74 +36,20 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::A);},
 		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::S);})))
 {
-	std::cout << "blar: " << pInputContext->get_key_down(keyboard::Key::A) << "\n";
-
 	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
 	pGameScene->add_camera(pMainCamera);
 
-	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pGameScene));
+	for (int i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pGameScene, aAssets));
 
-	for (int i(0); i < 1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene));
+	for (int i(0); i < 1; ++i) cities.push_back(flappy::city(pGraphicsContext, pGameScene, aAssets));
 
-	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene));
+	for (int i(0); i < 20; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene, aAssets));
 
 	// text stuff
-	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(pGraphicsContext->make_texture(
-		{ Text_Sheet_png, Text_Sheet_png + sizeof Text_Sheet_png / sizeof Text_Sheet_png[0] }))));
+	auto pTextTexture = aAssets->get_textmap();
 
-	text_map map(
-		pTextTexture,
-		{ 8, 8 },
-		{
-			{'a', {0,0}},
-			{'b', {1,0}},
-			{'c', {2,0}},
-			{'d', {3,0}},
-			{'e', {4,0}},
-			{'f', {5,0}},
-			{'g', {6,0}},
-			{'h', {7,0}},
-
-			{'i', {0,1}},
-			{'j', {1,1}},
-			{'k', {2,1}},
-			{'l', {3,1}},
-			{'m', {4,1}},
-			{'n', {5,1}},
-			{'o', {6,1}},
-			{'p', {7,1}},
-
-			{'q', {0,2}},
-			{'r', {1,2}},
-			{'s', {2,2}},
-			{'t', {3,2}},
-			{'u', {4,2}},
-			{'v', {5,2}},
-			{'w', {6,2}},
-			{'x', {7,2}},
-
-			{'y', {0,3}},
-			{'z', {1,3}},
-			{'!', {2,3}},
-
-			{'0', {3,3}},
-			{'1', {4,3}},
-			{'2', {5,3}},
-			{'3', {6,3}},
-			{'4', {7,3}},
-
-			{'5', {0,4}},
-			{'6', {1,4}},
-			{'7', {2,4}},
-			{'8', {3,4}},
-			{'9', {4,4}},
-
-			{'.', {5,4}},
-			{'?', {7,3}},
-			{' ', {7,6}},
-			{':', {6,4}},
-		});
+	text_map map = aAssets->get_textmap();
 
 	pScoreText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext,
 		map,
@@ -143,7 +87,11 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 		retry->set_on_activated([]() {std::cout << "retry\n";});
 
 		quit->set_east_neighbour(retry);
-		quit->set_on_activated([]() {std::cout << "quit\n";});
+		quit->set_on_activated([&]() 
+		{
+			//TODO: in multiplayer, this should remove this player and resize the splitscreen, not exit.
+			m_screens->pop();
+		});
 	}
 
 	m_menu->push(game_over_pane);

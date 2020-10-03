@@ -6,20 +6,23 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 	input::context::context_shared_ptr_type aInputContext,
 	audio::context::context_shared_ptr_type aAudio,
 	screen_stack_ptr_type aScreens,
-	std::shared_ptr<flappy::event_bus> aEventBus)
+	std::shared_ptr<flappy::event_bus> aEventBus,
+	flappy::assets::shared_ptr aAssets)
 	: m_InputContext(aInputContext)
 	, m_Screens(aScreens)
 	, m_pGraphicsContext(pGraphicsContext)
 	, m_pAudio(aAudio)
 	, m_PlayerCountChangedObserver(std::make_shared< std::function<void(flappy::player_count_changed_event)>>(
-		[this](flappy::player_count_changed_event e)
+		[this, aAssets](flappy::player_count_changed_event e)
 		{
 			m_games.clear();
 
 			for (int i(0); i < e.count; ++i)
 				m_games.push_back(std::shared_ptr<flappy::game>(new flappy::game(m_pGraphicsContext,
 					m_InputContext,
-					m_pAudio)));
+					m_pAudio,
+					m_Screens,
+					aAssets)));
 		}))
 	, m_pBlackBGScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, m_pBlackBGCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))

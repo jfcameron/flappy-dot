@@ -15,6 +15,7 @@
 #include <gdk/dynamic_text_renderer.h>
 #include <gdk/menu.h>
 
+#include <jfc/assets.h>
 #include <jfc/game.h>
 #include <jfc/Text_Sheet.png.h>
 #include <jfc/Sprite_Sheet.png.h>
@@ -36,10 +37,15 @@ namespace flappy
 
 	class game final
 	{
+		/// \brief controls highlevel game behaviour
 		enum class mode
 		{
+			/// \brief the game plays as usual
 			playing,
-			dead
+			/// \brief death screen
+			dead,
+			/// \brief waits for user to confirm they are ready to start playing
+			start
 		} m_Mode = mode::playing;
 
 		//! instanced pseudo random number generator
@@ -54,10 +60,13 @@ namespace flappy
 		//! graphics scene where GUI elements are rendered
 		gdk::graphics::context::scene_shared_ptr_type pGUIScene;
 
+		//! camera used to render both the game and gui scenes
 		std::shared_ptr<gdk::camera> pMainCamera;
 
+		//! controls the background effects behaviour
 		flappy::scenery scenery;
 
+		//! the player object
 		flappy::bird bird;
 
 		/// \brief looping cloud bg effect
@@ -78,16 +87,18 @@ namespace flappy
 		/// \brief retry
 		std::shared_ptr<static_text_renderer> pRetryText;
 
+		/// \brief ptr to the screen stack
+		screen_stack_ptr_type m_screens;
+
+		/// \brief retry/quit menu
 		std::shared_ptr<menu> m_menu;
 
-		// Pipe control
+		// Pipe control TODO: this stuff requires an overhaul. the game isnt fun yet.
 		size_t pipeCounter = 0;
 		float pipeDelay = 0;
 		std::vector<flappy::pipe> pipes;
 		std::array<std::function<void(decltype(pipes)&, decltype(pipeCounter)&, decltype(pipeDelay)&, decltype(m_Random)&)>, 6> m_PipeBehaviours;
 		
-		bool blar();
-
 	public:
 		/// \brief called by the gameloop
 		void update(float delta, 
@@ -98,7 +109,9 @@ namespace flappy
 
 		game(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,
-			audio::context::context_shared_ptr_type aAudio);
+			audio::context::context_shared_ptr_type aAudio,
+			screen_stack_ptr_type aScreens,
+			flappy::assets::shared_ptr aAssets);
 	};
 }
 

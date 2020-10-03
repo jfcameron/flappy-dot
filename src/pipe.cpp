@@ -117,12 +117,12 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 }
 
 pipe::pipe(gdk::graphics::context::context_shared_ptr_type pContext,
-	gdk::graphics::context::scene_shared_ptr_type pScene)
+	gdk::graphics::context::scene_shared_ptr_type pScene,
+	flappy::assets::shared_ptr aAssets)
 : m_Position(-5.0, 0.0)
 , m_Scale(0.25, 0.25)
 {
-	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
-		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] })));
+	auto pTexture = aAssets->get_spritesheet();
 
 	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
 	m_Material->setTexture("_Texture", pTexture);

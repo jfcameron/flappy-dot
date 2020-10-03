@@ -3,6 +3,8 @@
 #ifndef JFC_FLAPPY_BACKGROUND_H
 #define JFC_FLAPPY_BACKGROUND_H
 
+#include <jfc/assets.h>
+
 #include <gdk/graphics_context.h>
 #include <gdk/scene.h>
 #include <gdk/entity.h>
@@ -28,7 +30,8 @@ namespace flappy
 
 		scenery(gdk::graphics::context::context_shared_ptr_type pContext,
 			gdk::graphics::context::shader_program_shared_ptr_type pShader,
-			gdk::graphics::context::scene_shared_ptr_type pScene);
+			gdk::graphics::context::scene_shared_ptr_type pScene,
+			flappy::assets::shared_ptr aAssets);
 		~scenery() = default;
 	};
 };

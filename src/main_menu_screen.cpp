@@ -30,13 +30,14 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	screen_stack_ptr_type aScreens,
 	screen_ptr_type aGameScreen,
 	std::shared_ptr<glfw_window> aGLFWWindow,
-	std::shared_ptr<flappy::event_bus> aEventBus)
+	std::shared_ptr<flappy::event_bus> aEventBus,
+	flappy::assets::shared_ptr aAssets)
 	: m_pInput(aInputContext)
 	, m_Screens(aScreens)
 	, m_GameScreen(aGameScreen)
 	, m_pMainScene(graphics::context::scene_shared_ptr_type(std::move(aGraphicsContext->make_scene())))
 	, m_pMainCamera(std::shared_ptr<gdk::camera>(std::move(aGraphicsContext->make_camera())))
-	, scenery(flappy::scenery(aGraphicsContext, aGraphicsContext->get_alpha_cutoff_shader(), m_pMainScene))
+	, scenery(flappy::scenery(aGraphicsContext, aGraphicsContext->get_alpha_cutoff_shader(), m_pMainScene, aAssets))
 	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::UpArrow);},
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::DownArrow);},
@@ -50,81 +51,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 	m_pMainScene->add_camera(m_pMainCamera);
 
-	auto pTextTexture = std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(aGraphicsContext->make_texture(
-		{ Text_Sheet_png, Text_Sheet_png + sizeof Text_Sheet_png / sizeof Text_Sheet_png[0] }))));
-
-	text_map map(pTextTexture, { 8, 8 },
-	{
-		{'a', {0,0}},
-		{'b', {1,0}},
-		{'c', {2,0}},
-		{'d', {3,0}},
-		{'e', {4,0}},
-		{'f', {5,0}},
-		{'g', {6,0}},
-		{'h', {7,0}},
-		{'i', {0,1}},
-		{'j', {1,1}},
-		{'k', {2,1}},
-		{'l', {3,1}},
-		{'m', {4,1}},
-		{'n', {5,1}},
-		{'o', {6,1}},
-		{'p', {7,1}},
-		{'q', {0,2}},
-		{'r', {1,2}},
-		{'s', {2,2}},
-		{'t', {3,2}},
-		{'u', {4,2}},
-		{'v', {5,2}},
-		{'w', {6,2}},
-		{'x', {7,2}},
-		{'y', {0,3}},
-		{'z', {1,3}},
-		{'A', {0,0}},
-		{'B', {1,0}},
-		{'C', {2,0}},
-		{'D', {3,0}},
-		{'E', {4,0}},
-		{'F', {5,0}},
-		{'G', {6,0}},
-		{'H', {7,0}},
-		{'I', {0,1}},
-		{'J', {1,1}},
-		{'K', {2,1}},
-		{'L', {3,1}},
-		{'M', {4,1}},
-		{'N', {5,1}},
-		{'O', {6,1}},
-		{'P', {7,1}},
-		{'Q', {0,2}},
-		{'R', {1,2}},
-		{'S', {2,2}},
-		{'T', {3,2}},
-		{'U', {4,2}},
-		{'V', {5,2}},
-		{'W', {6,2}},
-		{'X', {7,2}},
-		{'Y', {0,3}},
-		{'Z', {1,3}},
-		{'0', {3,3}},
-		{'1', {4,3}},
-		{'2', {5,3}},
-		{'3', {6,3}},
-		{'4', {7,3}},
-		{'5', {0,4}},
-		{'6', {1,4}},
-		{'7', {2,4}},
-		{'8', {3,4}},
-		{'9', {4,4}},
-		{'!', {2,3}},
-		{'.', {5,4}},
-		{':', {6,4}},
-		{'?', {7,3}},
-		{' ', {7,6}},
-		{'/', {0,5}},
-		{'-', {1,5}},
-	});
+	auto map = aAssets->get_textmap();
 
 	m_TitleText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,

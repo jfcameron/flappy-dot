@@ -39,6 +39,7 @@ jfc_project(executable
         ${simpleglfw_LIBRARIES}
 
     SOURCE_LIST
+		${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
@@ -49,7 +50,6 @@ jfc_project(executable
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/resources.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp

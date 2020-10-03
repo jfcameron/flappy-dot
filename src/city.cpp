@@ -31,21 +31,22 @@ void city::randomizeGraphic()
 	
 	m_Material->setVector2("_UVOffset", graphic);
 
-	m_Speed = 0.2f;//+(0.2f * (m_Random() % 4));
+	m_Speed = 0.2f;
 
 	m_Scale = { scale + (0.02f * m_Speed) };
 
-	m_Position.y = 0.0045f;// +(m_Random() % 4 / 8);
+	m_Position.y = 0.0045f;
 
-	m_Position.z = -0.47f;// +(-m_Position.y * 0.06);
+	m_Position.z = -0.47f;
 }
 
 city::city(gdk::graphics::context::context_shared_ptr_type pContext,
-	gdk::graphics::context::scene_shared_ptr_type pScene)
+	gdk::graphics::context::scene_shared_ptr_type pScene,
+	flappy::assets::shared_ptr aassets)
 {
 	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
-	auto pTexture = std::shared_ptr<texture>(std::move(pContext->make_texture(
-		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] })));
+
+	auto pTexture = aassets->get_spritesheet();
 
 	m_Material->setTexture("_Texture", pTexture);
 	m_Material->setVector2("_UVScale", { 0.25, 0.25 });

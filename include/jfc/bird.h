@@ -8,6 +8,8 @@
 #include <gdk/scene.h>
 #include <gdk/entity.h>
 
+#include <jfc/assets.h>
+
 #include <random>
 #include <array>
 
@@ -42,7 +44,8 @@ namespace flappy
 		bird(gdk::graphics::context::context_shared_ptr_type pContext,
 			gdk::graphics::context::scene_shared_ptr_type pScene,
 			gdk::input::context::context_shared_ptr_type pInput,
-			gdk::audio::context::context_shared_ptr_type pAudio);
+			gdk::audio::context::context_shared_ptr_type pAudio,
+			flappy::assets::shared_ptr aAssets);
 	};
 }
 

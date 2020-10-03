@@ -34,11 +34,17 @@ namespace gdk
 			m_PushFunctor(s);
 		}
 
+		//! pops the screen stack
+		/// \remark has no effect if the stack is empty
 		void pop()
 		{
-			m_Screens.pop();
-		
-			m_PopFunctor(m_Screens.top());
+			if (!m_Screens.empty())
+			{
+				m_Screens.pop();
+
+				// TODO: This should be revisted this seems weird
+				if (!m_Screens.empty()) m_PopFunctor(m_Screens.top());
+			}
 		}
 
 		void update(float delta, float windowAspectRatio, std::pair<int, int> windowSize)

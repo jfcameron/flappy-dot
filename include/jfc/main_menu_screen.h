@@ -5,6 +5,7 @@
 
 #include <gdk/screen.h>
 
+#include <jfc/assets.h>
 #include <gdk/graphics_context.h>
 #include <gdk/input_context.h>
 #include <gdk/audio/context.h>
@@ -82,7 +83,8 @@ namespace gdk
 			screen_stack_ptr_type aScreens,
 			screen_ptr_type aGameScreen,
 			std::shared_ptr<glfw_window> aGLFWWindow,
-			std::shared_ptr<flappy::event_bus> aEventBus);
+			std::shared_ptr<flappy::event_bus> aEventBus,
+			flappy::assets::shared_ptr aAssets);
 
 		virtual ~main_menu_screen() = default;
 	};

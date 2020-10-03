@@ -35,6 +35,8 @@ namespace flappy
 		gdk::Vector2<float> m_Position;
 
 	public:
+		gdk::graphics_mat4x4_type get_world_position();
+
 		void update(float delta, std::vector<pipe> pipes);
 
 		bird(gdk::graphics::context::context_shared_ptr_type pContext,

@@ -17,9 +17,9 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 			m_games.clear();
 
 			for (int i(0); i < e.count; ++i)
-				m_games.push_back(flappy::game(m_pGraphicsContext,
+				m_games.push_back(std::shared_ptr<flappy::game>(new flappy::game(m_pGraphicsContext,
 					m_InputContext,
-					m_pAudio));
+					m_pAudio)));
 		}))
 	, m_pBlackBGScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, m_pBlackBGCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
@@ -81,7 +81,7 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 			(layouts[zeroedPlayerCount][i].winsizeScale.first * static_cast<float>(windowSize.first))/
 			(layouts[zeroedPlayerCount][i].winsizeScale.second * static_cast<float>(windowSize.second));
 
-		m_games[i].update(deltaTime,
+		m_games[i]->update(deltaTime,
 			ratio,
 			windowSize,
 			layouts[zeroedPlayerCount][i].topLeft,

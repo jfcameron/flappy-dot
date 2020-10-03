@@ -37,7 +37,7 @@ namespace gdk
 	class game_screen final : public screen
 	{
 		/// \brief collection of games,
-		std::vector<flappy::game> m_games;
+		std::vector<std::shared_ptr<flappy::game>> m_games;
 
 		input::context::context_shared_ptr_type m_InputContext;
 		

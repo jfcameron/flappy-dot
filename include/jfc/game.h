@@ -5,21 +5,17 @@
 
 #include <gdk/input_context.h>
 #include <gdk/intvector2.h>
-
 #include <gdk/screen.h>
-
 #include <gdk/graphics_context.h>
 #include <gdk/input_context.h>
 #include <gdk/audio/context.h>
-
 #include <gdk/scene.h>
-
 #include <gdk/text_map.h>
 #include <gdk/static_text_renderer.h>
 #include <gdk/dynamic_text_renderer.h>
+#include <gdk/menu.h>
 
 #include <jfc/game.h>
-
 #include <jfc/Text_Sheet.png.h>
 #include <jfc/Sprite_Sheet.png.h>
 #include <jfc/Floor.png.h>
@@ -40,7 +36,12 @@ namespace flappy
 
 	class game final
 	{
-		
+		enum class mode
+		{
+			playing,
+			dead
+		} m_Mode = mode::playing;
+
 		//! instanced pseudo random number generator
 		std::default_random_engine m_Random;
 
@@ -66,7 +67,18 @@ namespace flappy
 		std::vector<flappy::city> cities;
 
 		/// \brief score display
-		std::shared_ptr<dynamic_text_renderer> pText;
+		std::shared_ptr<dynamic_text_renderer> pScoreText;
+
+		/// \brief highscore display
+		std::shared_ptr<dynamic_text_renderer> pHighScoreText;
+
+		/// \brief quit
+		std::shared_ptr<static_text_renderer> pQuitText;
+
+		/// \brief retry
+		std::shared_ptr<static_text_renderer> pRetryText;
+
+		std::shared_ptr<menu> m_menu;
 
 		// Pipe control
 		size_t pipeCounter = 0;
@@ -74,6 +86,8 @@ namespace flappy
 		std::vector<flappy::pipe> pipes;
 		std::array<std::function<void(decltype(pipes)&, decltype(pipeCounter)&, decltype(pipeDelay)&, decltype(m_Random)&)>, 6> m_PipeBehaviours;
 		
+		bool blar();
+
 	public:
 		/// \brief called by the gameloop
 		void update(float delta, 
@@ -85,11 +99,6 @@ namespace flappy
 		game(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,
 			audio::context::context_shared_ptr_type aAudio);
-
-		~game()
-		{
-			std::cout << "dead\n";
-		}
 	};
 }
 

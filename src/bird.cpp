@@ -57,28 +57,27 @@ void bird::update(float delta, std::vector<pipe> pipes)
 	}
 
 	// Handle acceleration
-	if (m_VerticalSpeed > -1.f) m_VerticalSpeed -= delta * 0.1;
+	if (m_VerticalSpeed > -1.f) m_VerticalSpeed -= delta * 0.1f;
 
 	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
 	{
-		m_VerticalSpeed = 0.0225f;
+		m_VerticalSpeed = 0.03f;
 
 		m_JumpSFX->play();
 	}
 
 	m_Position.y += m_VerticalSpeed;
 
-	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, 0 }, { {0, 0, -m_VerticalSpeed * 60} }, { 0.2, 0.2, 1 });
+	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, 0 }, { {0, 0, -m_VerticalSpeed * 60} }, { 0.2, 0.2, 0 });
+}
 
+gdk::graphics_mat4x4_type bird::get_world_position()
+{
 	graphics_mat4x4_type tra;
+
 	tra.translate({ m_Position.x, m_Position.y, 0 });
-	graphics_mat4x4_type world = (tra);
 	
-	// Pipe collisions
-	for (const auto p : pipes)
-	{
-		p.check_collision(world);
-			//? std::cout << "collision\n"
-			//: std::cout << "\n";
-	}
+	graphics_mat4x4_type world = (tra);
+
+	return tra;
 }

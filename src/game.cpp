@@ -17,6 +17,11 @@ static size_t increment_pipeCounter(size_t& pipeCounter, size_t size)
 	return pipeCounter;
 }
 
+bool game::blar()
+{
+	return pInputContext->get_key_down(keyboard::Key::B);
+}
+
 game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
 	audio::context::context_shared_ptr_type aAudio)
@@ -25,7 +30,16 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
 	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio))
+	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
+		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::UpArrow);},
+		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::DownArrow);},
+		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::LeftArrow);},
+		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::RightArrow);},
+		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::A);},
+		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::S);})))
 {
+	std::cout << "blar: " << pInputContext->get_key_down(keyboard::Key::A) << "\n";
+
 	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
 	pGameScene->add_camera(pMainCamera);
@@ -88,16 +102,51 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 			{'9', {4,4}},
 
 			{'.', {5,4}},
-			{'?', {6,4}},
-			{' ', {7,4}},
+			{'?', {7,3}},
+			{' ', {7,6}},
+			{':', {6,4}},
 		});
 
-	pText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext,
+	pScoreText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext,
 		map,
 		text_renderer::alignment::upper_edge));
-	pText->set_model_matrix({ 0, 0.5f, 0 }, {}, { 0.1f });
+	pScoreText->set_model_matrix({ 0, 0.5f, 0 }, {}, { 0.1f });
+	pScoreText->add_to_scene(pGameScene);
 
-	pText->add_to_scene(pGameScene);
+	pHighScoreText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext,
+		map,
+		text_renderer::alignment::upper_edge,
+		L"high score:\n1234"));
+	pHighScoreText->set_model_matrix({ 0, 0.25f, 0 }, {}, { 0.05f });
+	pHighScoreText->add_to_scene(pGameScene);
+	
+	pRetryText = std::make_shared<static_text_renderer>(static_text_renderer(pGraphicsContext,
+		map,
+		text_renderer::alignment::upper_edge,
+		L"retry"));
+	pRetryText->set_model_matrix({ 0.2, 0.1f, 0 }, {}, { 0.05f });
+	pRetryText->add_to_scene(pGameScene);
+
+	pQuitText = std::make_shared<static_text_renderer>(static_text_renderer(pGraphicsContext,
+		map,
+		text_renderer::alignment::upper_edge,
+		L"quit"));
+	pQuitText->set_model_matrix({ -0.2, 0.1f, 0 }, {}, { 0.05f });
+	pQuitText->add_to_scene(pGameScene);
+
+	auto game_over_pane = pane::make_pane();
+	{
+		auto retry = game_over_pane->make_element();
+		auto quit = game_over_pane->make_element();
+
+		retry->set_west_neighbour(quit);
+		retry->set_on_activated([]() {std::cout << "retry\n";});
+
+		quit->set_east_neighbour(retry);
+		quit->set_on_activated([]() {std::cout << "quit\n";});
+	}
+
+	m_menu->push(game_over_pane);
 
 	// the different pipe layouts
 	m_PipeBehaviours[0] = [](decltype(pipes)& pipes, decltype(pipeCounter)& counter, decltype(pipeDelay)& delay, decltype(m_Random)& random)
@@ -166,6 +215,8 @@ void game::update(float deltaTime,
 	std::pair<float, float> vpUpperLeft, 
 	std::pair<float, float> vpSize)
 {
+	m_menu->update();
+
 	pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, aspectRatio);
 	pMainCamera->set_viewport(vpUpperLeft.first, vpUpperLeft.second, vpSize.first, vpSize.second);
 
@@ -179,24 +230,35 @@ void game::update(float deltaTime,
 
 	for (auto& city : cities) city.update(deltaTime);
 
-	pText->update_text(std::to_wstring(deltaTime * 1000));
+	pScoreText->update_text(std::to_wstring(deltaTime * 1000));
 
-	//switch (m_Mode)
-	{
-		if (pInputContext->get_key_just_pressed(keyboard::Key::Escape)) {}
-
-		//case mode::playing:
+	switch (m_Mode)
+	{	
+		case decltype(m_Mode)::playing:
 		{
 			bird.update(deltaTime, pipes);
 
-			pipeDelay -= deltaTime * 1;
-			if (pipeDelay <= 0)
-			{
-				//float pipeDelay = 0;
-				m_PipeBehaviours[m_Random() % m_PipeBehaviours.size()](pipes, pipeCounter, pipeDelay, m_Random);
-			}
-		} //break;
+			auto wpos = bird.get_world_position();
 
-		//default: break;
+			for (auto& pipe : pipes)
+			{
+				if (pipe.check_collision(wpos)) std::cout << "hit\n";
+			}
+
+			if (pipeDelay -= deltaTime; pipeDelay <= 0)
+			{
+				m_PipeBehaviours[m_Random() % m_PipeBehaviours.size()](
+					pipes, 
+					pipeCounter, 
+					pipeDelay, 
+					m_Random);
+			}
+		} break;
+
+		case decltype(m_Mode)::dead:
+		{
+
+		} break;
+		default: break;
 	}
 }

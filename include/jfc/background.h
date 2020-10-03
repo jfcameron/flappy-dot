@@ -14,8 +14,10 @@ namespace flappy
 	/// \brief controls parallax effect, clouds, etc.
 	class scenery final
 	{
+	public:
 		static constexpr size_t size = 8;
 
+	private:
 		std::array<std::shared_ptr<gdk::entity>, size> m_ParallaxEntities;
 		std::array<std::shared_ptr<gdk::material>, size> m_ParallaxMaterials;
 

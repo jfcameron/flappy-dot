@@ -68,7 +68,7 @@ namespace gdk
 
 		//! used to hide/show current menu element
 		bool m_BlinkStatus = true;
-
+		
 		std::shared_ptr<menu> m_menu;
 
 		std::shared_ptr<flappy::event_bus> m_pEventBus;

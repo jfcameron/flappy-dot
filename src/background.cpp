@@ -84,7 +84,6 @@ scenery::scenery(gdk::graphics::context::context_shared_ptr_type pContext,
 
 void scenery::update(const float delta)
 {
-	static float time = 0;
 	time += delta;
 
 	int i(0); for (auto &a : m_ParallaxMaterials) 

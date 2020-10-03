@@ -9,11 +9,14 @@
 #include <gdk/input_context.h>
 #include <gdk/audio/context.h>
 #include <gdk/menu.h>
+#include <gdk/dynamic_text_renderer.h>
 #include <gdk/static_text_renderer.h>
 
 #include <jfc/screen_stack.h>
 #include <jfc/background.h>
 #include <jfc/glfw_window.h>
+
+#include <jfc/flappy_event_bus.h>
 
 namespace gdk
 {
@@ -38,7 +41,7 @@ namespace gdk
 		std::shared_ptr<static_text_renderer> m_StartText;
 
 		//! title pane, players count button
-		std::shared_ptr<static_text_renderer> m_PlayersCountText;
+		std::shared_ptr<dynamic_text_renderer> m_PlayersCountText;
 
 		//! main pane, credits button
 		std::shared_ptr<static_text_renderer> m_pCreditsText;
@@ -50,7 +53,7 @@ namespace gdk
 		std::shared_ptr<static_text_renderer> m_pCreditsContextText;
 
 		//! Used to determine which text item should blink
-		std::shared_ptr<static_text_renderer> m_pCurrentText;
+		std::shared_ptr<text_renderer> m_pCurrentText;
 
 		//! blink counter
 		int m_PrompCounter = 0;
@@ -68,6 +71,8 @@ namespace gdk
 
 		std::shared_ptr<menu> m_menu;
 
+		std::shared_ptr<flappy::event_bus> m_pEventBus;
+
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 
@@ -76,7 +81,8 @@ namespace gdk
 			audio::context::context_shared_ptr_type aAudioContext,
 			screen_stack_ptr_type aScreens,
 			screen_ptr_type aGameScreen,
-			std::shared_ptr<glfw_window> aGLFWWindow);
+			std::shared_ptr<glfw_window> aGLFWWindow,
+			std::shared_ptr<flappy::event_bus> aEventBus);
 
 		virtual ~main_menu_screen() = default;
 	};

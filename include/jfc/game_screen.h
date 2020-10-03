@@ -26,6 +26,7 @@
 #include <jfc/city.h>
 #include <jfc/pipe.h>
 #include <jfc/screen_stack.h>
+#include <jfc/flappy_event_bus.h>
 
 #include <array>
 #include <memory>
@@ -35,18 +36,33 @@ namespace gdk
 {
 	class game_screen final : public screen
 	{
+		/// \brief collection of games,
 		std::vector<flappy::game> m_games;
 
 		input::context::context_shared_ptr_type m_InputContext;
+		
 		screen_stack_ptr_type m_Screens;
 
+		graphics::context::context_shared_ptr_type m_pGraphicsContext;
+
+		audio::context::context_shared_ptr_type m_pAudio;
+
+		/// \brief callback when the # of splitscreen players change
+		std::shared_ptr <std::function<void(flappy::player_count_changed_event)>> m_PlayerCountChangedObserver;
+
+		/// \brief used to render a black screen behind the game instances
+		gdk::graphics::context::scene_shared_ptr_type m_pBlackBGScene;
+
+		/// \brief used to render a black screen behind the game instances
+		std::shared_ptr<gdk::camera> m_pBlackBGCamera;
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 
 		game_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,
 			audio::context::context_shared_ptr_type aAudio,
-			screen_stack_ptr_type aScreens);
+			screen_stack_ptr_type aScreens,
+			std::shared_ptr<flappy::event_bus> aEventBus);
 
 		virtual ~game_screen() = default;
 	};

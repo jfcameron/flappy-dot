@@ -19,6 +19,8 @@ namespace flappy
 		std::array<std::shared_ptr<gdk::entity>, size> m_ParallaxEntities;
 		std::array<std::shared_ptr<gdk::material>, size> m_ParallaxMaterials;
 
+		float time = 0;
+
 	public:
 		void update(const float delta);
 

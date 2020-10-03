@@ -40,14 +40,13 @@ namespace flappy
 
 	class game final
 	{
+		
 		//! instanced pseudo random number generator
 		std::default_random_engine m_Random;
 
 		//! ptr to the input abstraction
 		input::context::context_shared_ptr_type pInputContext;
-
-		screen_stack_ptr_type m_pScreens;
-
+		
 		//! graphics scene where gameplay takes place
 		gdk::graphics::context::scene_shared_ptr_type pGameScene;
 
@@ -60,9 +59,13 @@ namespace flappy
 
 		flappy::bird bird;
 
+		/// \brief looping cloud bg effect
 		std::vector<flappy::cloud> clouds;
+		
+		/// \brief looping city bg effect
 		std::vector<flappy::city> cities;
 
+		/// \brief score display
 		std::shared_ptr<dynamic_text_renderer> pText;
 
 		// Pipe control
@@ -70,8 +73,9 @@ namespace flappy
 		float pipeDelay = 0;
 		std::vector<flappy::pipe> pipes;
 		std::array<std::function<void(decltype(pipes)&, decltype(pipeCounter)&, decltype(pipeDelay)&, decltype(m_Random)&)>, 6> m_PipeBehaviours;
-
+		
 	public:
+		/// \brief called by the gameloop
 		void update(float delta, 
 			float aspectRatio, 
 			std::pair<int, int> windowSize, 
@@ -80,8 +84,12 @@ namespace flappy
 
 		game(graphics::context::context_shared_ptr_type aGraphicsContext,
 			input::context::context_shared_ptr_type aInputContext,
-			audio::context::context_shared_ptr_type aAudio,
-			screen_stack_ptr_type aScreens);
+			audio::context::context_shared_ptr_type aAudio);
+
+		~game()
+		{
+			std::cout << "dead\n";
+		}
 	};
 }
 

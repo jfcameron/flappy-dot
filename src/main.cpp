@@ -61,16 +61,18 @@ int main(int argc, char** argv)
 	pGameScreen = decltype(pGameScreen)(new gdk::game_screen(pGraphicsContext,
 		pInputContext,
 		pAudioContext,
-		pScreens));
+		pScreens,
+		pEventBus));
 
 	pMainMenuScreen = decltype(pMainMenuScreen)(new gdk::main_menu_screen(pGraphicsContext,
 		pInputContext,
 		pAudioContext,
 		pScreens,
 		pGameScreen,
-		window));
+		window,
+		pEventBus));
 
-	screen_to_string[pGameScreen] = "GameScreen"; //shouldnt be using strings..
+	screen_to_string[pGameScreen] = "GameScreen"; //TODO: remove this map, just use ptr directly. no value to strings here
 	screen_to_string[pMainMenuScreen] = "MainMenu";
 
 	flappy::background_music_player music(pEventBus, pAudioContext);
@@ -85,10 +87,9 @@ int main(int argc, char** argv)
 
 	pEmitter->play();
 
-	// game loop
-	float deltaTime(0);
-	
-	while (!window->shouldClose())
+	std::cout << pGameScreen << ", " << pGameScreen << "\n";
+
+	for (float deltaTime(0); !window->shouldClose();)
 	{
 		using namespace std::chrono;
 

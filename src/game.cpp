@@ -19,10 +19,8 @@ static size_t increment_pipeCounter(size_t& pipeCounter, size_t size)
 
 game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
-	audio::context::context_shared_ptr_type aAudio,
-	screen_stack_ptr_type aScreens)
+	audio::context::context_shared_ptr_type aAudio)
 	: pInputContext(aInputContext)
-	, m_pScreens(aScreens)
 	, pGameScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene))
@@ -168,8 +166,6 @@ void game::update(float deltaTime,
 	std::pair<float, float> vpUpperLeft, 
 	std::pair<float, float> vpSize)
 {
-	
-
 	pMainCamera->set_orthographic_projection(2, 2, 0.01, 10, aspectRatio);
 	pMainCamera->set_viewport(vpUpperLeft.first, vpUpperLeft.second, vpSize.first, vpSize.second);
 

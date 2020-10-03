@@ -3,11 +3,16 @@
 
 #include <gdk/event_bus.h>
 
+#include <gdk/screen_stack.h>
+
 namespace flappy
 {
 	struct screen_pushed_event
 	{
+		//TODO: remove this, just rely on the ptr
 		std::string name;
+
+		screen_ptr_type screen;
 	};
 
 	struct screen_popped_event
@@ -31,6 +36,7 @@ namespace flappy
 	public:
 
 	private:
+		/// \brief notifies observers that a screen has been pushed
 		gdk::event_bus<screen_pushed_event> m_ScreenPushed;
 		gdk::event_bus<screen_popped_event> m_ScreenPopped;
 		

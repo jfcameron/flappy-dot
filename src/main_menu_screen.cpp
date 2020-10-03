@@ -5,18 +5,32 @@
 
 #include <jfc/Text_Sheet.png.h>
 
+#include <sstream>
+
 using namespace gdk;
 
 static constexpr int BLINK_RATE(26);
 
 audio::context::context_shared_ptr_type pAudioContext;
 
+static inline std::wstring playerCountToText(int aCount)
+{
+	std::wstringstream s;
+
+	s << aCount << L" Player";
+
+	if (aCount > 1) s << L"s";
+
+	return s.str();
+}
+
 main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
 	input::context::context_shared_ptr_type aInputContext,
 	audio::context::context_shared_ptr_type aAudioContext,
 	screen_stack_ptr_type aScreens,
 	screen_ptr_type aGameScreen,
-	std::shared_ptr<glfw_window> aGLFWWindow)
+	std::shared_ptr<glfw_window> aGLFWWindow,
+	std::shared_ptr<flappy::event_bus> aEventBus)
 	: m_pInput(aInputContext)
 	, m_Screens(aScreens)
 	, m_GameScreen(aGameScreen)
@@ -30,6 +44,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::RightArrow);},
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::A);},
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::S);})))
+	, m_pEventBus(aEventBus)
 {
 	pAudioContext = aAudioContext;
 
@@ -142,10 +157,10 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	m_StartText->add_to_scene(m_pMainScene);
 	m_StartText->hide();
 
-	m_PlayersCountText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+	m_PlayersCountText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(aGraphicsContext,
 		map,
 		text_renderer::alignment::center,
-		L"Players"
+		playerCountToText(m_PlayerCount)
 	));
 	m_PlayersCountText->set_model_matrix({ 0, 0.05f, 0 }, {}, { 0.05f });
 	m_PlayersCountText->add_to_scene(m_pMainScene);
@@ -260,9 +275,11 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		});
 		pPlayersButton->set_on_activated([=]()
 		{
-			std::cout << m_PlayerCount << "\n";
-
 			if (++m_PlayerCount > 4) m_PlayerCount = 1;
+
+			m_pEventBus->propagate_player_count_changed_event({ m_PlayerCount });
+
+			m_PlayersCountText->update_text(playerCountToText(m_PlayerCount));
 		});
 
 		pCreditsButton->set_north_neighbour(pPlayersButton);

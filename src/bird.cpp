@@ -7,14 +7,21 @@
 using namespace gdk;
 using namespace flappy;
 
+/// \brief limit to the player's downward speed
+static constexpr float player_gravity_speed_limit(-0.75f);
+
+/// \brief limit to the player's downward acceleration
+static constexpr float player_gravity_acceleration(0.155f);
+
+/// \brief upward vertical speed assigned to the player when pressing the jump button
+static constexpr float player_jump_speed(0.03f);
+
 static const std::array<graphics_vector2_type, 4> FLAPPING_ANIMATION{
 	graphics_vector2_type(1, 0),
 	graphics_vector2_type(0, 0),
 	graphics_vector2_type(2, 0),
 	graphics_vector2_type(0, 0)
 };
-
-static std::shared_ptr<gdk::entity> coolEntity;
 
 bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene,
@@ -23,7 +30,7 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	flappy::assets::shared_ptr aAssets)
 	: m_pInput(pInput)
 {
-	m_Position.x = -0.25f;
+	m_Position.x = player_x;
 
 	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
 
@@ -43,7 +50,7 @@ void bird::update(float delta, std::vector<pipe> pipes)
 	// Animate
 	accumulator += delta;
 
-	if (accumulator > 0.35)
+	if (accumulator > 0.25f)
 	{
 		accumulator = 0;
 	
@@ -53,19 +60,20 @@ void bird::update(float delta, std::vector<pipe> pipes)
 	}
 
 	// Handle acceleration
-	if (m_VerticalSpeed > -1.f) m_VerticalSpeed -= delta * 0.1f;
+	if (m_VerticalSpeed > player_gravity_speed_limit) 
+		m_VerticalSpeed -= delta * player_gravity_acceleration;
 
 	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
 	{
-		m_VerticalSpeed = 0.03f;
+		m_VerticalSpeed = player_jump_speed;
 
 		m_JumpSFX->play();
 	}
 
 	m_Position.y += m_VerticalSpeed;
 
-	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, 0 }, 
-		{ {0, 0, -m_VerticalSpeed * 60} }, 
+	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.01f }, 
+		{ {0, 0, -m_VerticalSpeed * 40} }, 
 		{ 0.2, 0.2, 0 });
 }
 

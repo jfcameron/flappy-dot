@@ -10,6 +10,7 @@
 
 namespace gdk
 {
+	//TODO: replace "on pop" and "on push" with "on gained top" and "on lost top"
 	class screen_stack
 	{
 	public:
@@ -34,11 +35,16 @@ namespace gdk
 			m_PushFunctor(s);
 		}
 
+		/// \brief pops the stack
+		/// \remark pop() has no effect if it would result in an empty stack
 		void pop()
 		{
-			m_Screens.pop();
-		
-			m_PopFunctor(m_Screens.top());
+			if (m_Screens.size() > 1)
+			{
+				m_Screens.pop();
+
+				m_PopFunctor(m_Screens.top());
+			}
 		}
 
 		void update(float delta, float windowAspectRatio, std::pair<int, int> windowSize)

@@ -13,7 +13,7 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 	, m_pGraphicsContext(pGraphicsContext)
 	, m_pAudio(aAudio)
 	, m_PlayerCountChangedObserver(std::make_shared< std::function<void(flappy::player_count_changed_event)>>(
-		[this, aAssets](flappy::player_count_changed_event e)
+		[this, aAssets, aEventBus](flappy::player_count_changed_event e)
 		{
 			m_games.clear();
 
@@ -22,7 +22,25 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 					m_InputContext,
 					m_pAudio,
 					m_Screens,
+					aEventBus,
 					aAssets)));
+		}))
+	, m_PlayerWantsToResetObserver(std::make_shared<std::function<void(flappy::player_wants_to_reset_event e)>>(
+		[this, aAssets, aEventBus](flappy::player_wants_to_reset_event e)
+		{
+			for (size_t i(0); i < m_games.size(); ++i)
+			{
+				if (m_games[i].get() == e.game)
+				{
+					m_games[i].reset(new flappy::game(m_pGraphicsContext,
+						m_InputContext,
+						m_pAudio,
+						m_Screens,
+						aEventBus,
+						aAssets));
+				}
+			}
+
 		}))
 	, m_pBlackBGScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
 	, m_pBlackBGCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
@@ -34,11 +52,13 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 	m_pBlackBGCamera->set_clear_color({});
 
 	m_pBlackBGScene->add_camera(m_pBlackBGCamera);
+
+	aEventBus->add_player_wants_to_reset_observer(m_PlayerWantsToResetObserver);
 }
 
 void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int> windowSize)
 {
-	if (m_InputContext->get_key_just_pressed(keyboard::Key::Escape)) m_Screens->pop();
+    flappy::screen::update(deltaTime, aspectRatio, windowSize);
 
 	struct screen_layout
 	{

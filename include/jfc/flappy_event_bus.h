@@ -7,6 +7,8 @@
 
 namespace flappy
 {
+	class game;
+
 	struct screen_pushed_event
 	{
 		//TODO: remove this, just rely on the ptr
@@ -22,12 +24,18 @@ namespace flappy
 
 	struct player_died_event
 	{
-		int score;
+		size_t score;
 	};
 
 	struct player_count_changed_event
 	{
 		int count;
+	};
+
+	struct player_wants_to_reset_event
+	{
+		/// \warn strictly for comparisons!
+		flappy::game *const game;
 	};
 
 	/// \brief wrapper for all the event buses used in the program.
@@ -41,10 +49,13 @@ namespace flappy
 		gdk::event_bus<screen_popped_event> m_ScreenPopped;
 		
 		gdk::event_bus<player_count_changed_event> m_PlayerCountChanged;
-
 		gdk::event_bus<player_died_event> m_PlayerDied;
+		gdk::event_bus<player_wants_to_reset_event> m_PlayerWantsToReset;
 
     public:
+		void add_player_wants_to_reset_observer(decltype(m_PlayerWantsToReset)::observer_weak_ptr_type pObserver);
+		void propagate_player_wants_to_reset_event(decltype(m_PlayerWantsToReset)::event_type e);
+
 		void add_player_count_changed_observer(decltype(m_PlayerCountChanged)::observer_weak_ptr_type pObserver);
 		void propagate_player_count_changed_event(decltype(m_PlayerCountChanged)::event_type e);
 

@@ -45,12 +45,14 @@ jfc_project(executable
 		${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/control.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 

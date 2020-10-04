@@ -16,12 +16,13 @@
 #include <jfc/screen_stack.h>
 #include <jfc/background.h>
 #include <jfc/glfw_window.h>
+#include <jfc/flappy_screen.h>
 
 #include <jfc/flappy_event_bus.h>
 
 namespace gdk
 {
-	class main_menu_screen final : public screen
+	class main_menu_screen final : public flappy::screen
 	{
 		gdk::graphics::context::scene_shared_ptr_type m_pMainScene;
 
@@ -52,12 +53,6 @@ namespace gdk
 
 		//! credits pane, credits text
 		std::shared_ptr<static_text_renderer> m_pCreditsContextText;
-
-		//! Used to determine which text item should blink
-		std::shared_ptr<text_renderer> m_pCurrentText;
-
-		//! blink counter
-		int m_PrompCounter = 0;
 
 		screen_stack_ptr_type m_Screens;
 		screen_ptr_type m_GameScreen;

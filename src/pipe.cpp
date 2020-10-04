@@ -1,7 +1,7 @@
 // © 2020 Joseph Cameron - All Rights Reserved
 #include <jfc/pipe.h>
-
 #include <jfc/Sprite_Sheet.png.h>
+#include <jfc/bird.h>
 
 #include <chrono>
 
@@ -141,9 +141,9 @@ float total_time(0);
 
 void pipe::update(const float delta, gdk::input::context::context_shared_ptr_type pInput)
 {
-	total_time += delta * 0.999f;
+	total_time += delta;
 
-	m_Position.x -= delta;
+	m_Position.x -= delta * 0.65f;
 
 	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.435 }, { {0, 0, m_Rotation} }, { m_Scale.x, m_Scale.y, 1 });
 }
@@ -177,10 +177,13 @@ void pipe::set_up(const decltype(m_Position)& aPosition,
 
 bool pipe::check_collision(const graphics_mat4x4_type &aWorldPosition) const
 {
-	// Building an inverse world matrix so the bird's world position can be mulled into the pipe's local space, 
-	// for scale & rotation friendly point vs box collision detection
-	// NOTE: This should not be the pipe's responsibility, should be a separate system, e.g box2d
-	// but its fine given how simple this game is.
+	// bail early if collision is not possible
+	if (std::abs(m_Position.x) > 0.5f) return false;
+
+	// Building an inverse world matrix so the bird's world position can be mulled into the pipe's local space
+	// for scale & rotation friendly point vs box collision detection.
+	// NOTE: This should not be the pipe's responsibility. This should be performed by a separate system but
+	// this implementation is OK given how simple the game is.
 	graphics_mat4x4_type pipeWorld;
 
 	auto pos = getPosition();

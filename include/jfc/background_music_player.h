@@ -62,6 +62,7 @@ namespace flappy
 				Very_Short_Work_ogg, Very_Short_Work_ogg + sizeof(Very_Short_Work_ogg) / sizeof(Very_Short_Work_ogg[0])));
 
 			m_ScreenNameToBGM["GameScreen"] = aAudioContext->make_emitter(pSound);
+			m_ScreenNameToBGM["GameScreen"]->set_pitch(1.f);
 
 			pEventBus->add_screen_pushed_event_observer(m_pScreenPushObserver);
 			pEventBus->add_screen_popped_event_observer(m_pScreenPopObserver);

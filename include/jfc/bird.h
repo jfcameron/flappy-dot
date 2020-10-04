@@ -22,6 +22,11 @@ namespace flappy
 	/// \brief the birdy player character
 	class bird final
 	{
+	public:
+		/// \brief fixed horizontal position occupied by the player
+		static constexpr float player_x = -0.25f;
+
+	private:
 		gdk::input::context::context_shared_ptr_type m_pInput;
 
 		std::shared_ptr<gdk::entity> m_Entity;

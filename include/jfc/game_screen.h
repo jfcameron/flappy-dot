@@ -28,6 +28,7 @@
 #include <jfc/screen_stack.h>
 #include <jfc/flappy_event_bus.h>
 #include <jfc/assets.h>
+#include <jfc/flappy_screen.h>
 
 #include <array>
 #include <memory>
@@ -36,7 +37,7 @@
 namespace gdk
 {
 	// TOOD: instead of popped/pushed, swithc to gained_top, lost_top.
-	class game_screen final : public screen
+	class game_screen final : public flappy::screen
 	{
 		/// \brief collection of games,
 		std::vector<std::shared_ptr<flappy::game>> m_games;
@@ -52,11 +53,15 @@ namespace gdk
 		/// \brief callback when the # of splitscreen players change
 		std::shared_ptr <std::function<void(flappy::player_count_changed_event)>> m_PlayerCountChangedObserver;
 
+		/// \brief watches for when a player wants to reset their game
+		std::shared_ptr <std::function<void(flappy::player_wants_to_reset_event)>> m_PlayerWantsToResetObserver;
+
 		/// \brief used to render a black screen behind the game instances
 		gdk::graphics::context::scene_shared_ptr_type m_pBlackBGScene;
 
 		/// \brief used to render a black screen behind the game instances
 		std::shared_ptr<gdk::camera> m_pBlackBGCamera;
+		
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 

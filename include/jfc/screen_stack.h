@@ -10,6 +10,7 @@
 
 namespace gdk
 {
+	// TODO: replace "push" and "pop" functors with gained_top lost_top
 	class screen_stack
 	{
 	public:
@@ -35,10 +36,10 @@ namespace gdk
 		}
 
 		//! pops the screen stack
-		/// \remark has no effect if the stack is empty
+		/// \remark has no effect if the stack would completely empty
 		void pop()
 		{
-			if (!m_Screens.empty())
+			if (m_Screens.size() > 1)
 			{
 				m_Screens.pop();
 

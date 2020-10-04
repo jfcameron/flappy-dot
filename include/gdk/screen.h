@@ -12,13 +12,16 @@ namespace gdk
 	public:
 		virtual void update(float delta, float windowAspectRatio, std::pair<int, int> windowSize) = 0;
 
-		//screen() = default;
+		//! explicit delete copy semantics
+		screen(screen&) = delete;
 
-		//screen(screen&&) = default;
-
-		screen& operator=(screen&&) = default;
+		//! explicit delete move semantics
+		screen(screen&&) = delete;
 
 		virtual ~screen() = default;
+
+	protected:
+		screen() = default;
 	};
 }
 

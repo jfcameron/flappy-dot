@@ -179,9 +179,9 @@ void menu::push(pane::pane_shared_ptr p)
 	pNewTop->just_gained_top();
 	pNewTop->set_menu_ptr(this);
 
-	if (m_stack.size()) 
+	if (m_stack.size())
 		std::static_pointer_cast<pane_impl>(m_stack.top())->just_lost_top();
-
+	
 	m_stack.push(p);
 }
 

@@ -15,6 +15,7 @@
 #include <gdk/dynamic_text_renderer.h>
 #include <gdk/menu.h>
 
+#include <jfc/flappy_event_bus.h>
 #include <jfc/assets.h>
 #include <jfc/game.h>
 #include <jfc/Text_Sheet.png.h>
@@ -33,10 +34,19 @@
 
 namespace flappy
 {
-	using namespace gdk;
-
 	class game final
 	{
+		static constexpr int BLINK_RATE = 26;
+
+		//! used to flash current selection
+		bool m_BlinkStatus = true;
+
+		//! Used to determine which text item should blink
+		std::shared_ptr<gdk::text_renderer> m_pCurrentText;
+
+		//! blink counter
+		int m_PrompCounter = 0;
+
 		/// \brief controls highlevel game behaviour
 		enum class mode
 		{
@@ -97,9 +107,21 @@ namespace flappy
 		size_t pipeCounter = 0;
 		float pipeDelay = 0;
 		std::vector<flappy::pipe> pipes;
-		std::array<std::function<void(decltype(pipes)&, decltype(pipeCounter)&, decltype(pipeDelay)&, decltype(m_Random)&)>, 6> m_PipeBehaviours;
+		std::array<std::function<void(decltype(pipes)&, decltype(pipeCounter)&, decltype(pipeDelay)&, decltype(m_Random)&)>, 1> m_PipeBehaviours;
 		
+		size_t m_Score = 0;
+		float m_ScoreIncrementer = 0;
+
+		decltype(pane::make_pane()) m_game_over_pane;
+
+		std::shared_ptr<flappy::event_bus> m_EventBus;
+
+		void updateHighScore();
+
 	public:
+		/// \brief resets state to a freshly constructed game
+		void reset();
+
 		/// \brief called by the gameloop
 		void update(float delta, 
 			float aspectRatio, 
@@ -111,6 +133,7 @@ namespace flappy
 			input::context::context_shared_ptr_type aInputContext,
 			audio::context::context_shared_ptr_type aAudio,
 			screen_stack_ptr_type aScreens,
+			std::shared_ptr<flappy::event_bus> a,
 			flappy::assets::shared_ptr aAssets);
 	};
 }

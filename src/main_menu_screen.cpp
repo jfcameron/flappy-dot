@@ -1,4 +1,6 @@
-﻿#include <jfc/main_menu_screen.h>
+﻿// © 2020 Joseph Cameron - All Rights Reserved
+
+#include <jfc/main_menu_screen.h>
 
 #include <gdk/texture.h>
 #include <gdk/text_map.h>
@@ -8,8 +10,6 @@
 #include <sstream>
 
 using namespace gdk;
-
-static constexpr int BLINK_RATE(26);
 
 audio::context::context_shared_ptr_type pAudioContext;
 
@@ -43,8 +43,8 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::DownArrow);},
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::LeftArrow);},
 		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::RightArrow);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::A);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::S);})))
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::Enter);},
+		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::Escape);})))
 	, m_pEventBus(aEventBus)
 {
 	pAudioContext = aAudioContext;
@@ -129,7 +129,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	m_pCreditsContextText->add_to_scene(m_pMainScene);
 	m_pCreditsContextText->hide();
 
-	m_pCurrentText = m_PromptText;
+	set_current_text(m_PromptText);
 	
 	// Credits pane logic
 	auto credits_pane = pane::make_pane();
@@ -148,8 +148,6 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	// Main pane logic
 	auto main_pane = pane::make_pane();
 	{
-		static constexpr int RESET_VALUE(BLINK_RATE/2);
-
 		main_pane->set_on_just_gained_top([&]()
 		{
 			m_StartText->show();
@@ -165,7 +163,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			m_pCreditsText->hide();
 			m_pQuitText->hide();
 
-			m_pCurrentText = nullptr;
+			set_current_text(nullptr);
 		});
 
 		auto pStartButton = main_pane->make_element();
@@ -175,16 +173,14 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 		auto lostFocus = [=]()
 		{
-			if (m_pCurrentText) m_pCurrentText->show();
+			show_current_text();
 		};
 
 		pStartButton->set_south_neighbour(pPlayersButton);
 		pStartButton->set_on_just_lost_focus(lostFocus);
 		pStartButton->set_on_just_gained_focus([=]()
 		{
-			m_pCurrentText = m_StartText;
-			m_pCurrentText->hide();
-			m_PrompCounter = RESET_VALUE;
+			set_current_text(m_StartText);
 		});
 		pStartButton->set_on_activated([=]()
 		{
@@ -196,9 +192,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		pPlayersButton->set_on_just_lost_focus(lostFocus);
 		pPlayersButton->set_on_just_gained_focus([=]()
 		{
-			m_pCurrentText = m_PlayersCountText;
-			m_pCurrentText->hide();
-			m_PrompCounter = RESET_VALUE;
+			set_current_text(m_PlayersCountText);
 		});
 		pPlayersButton->set_on_activated([=]()
 		{
@@ -214,9 +208,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		pCreditsButton->set_on_just_lost_focus(lostFocus);
 		pCreditsButton->set_on_just_gained_focus([=]()
 		{
-			m_pCurrentText = m_pCreditsText;
-			m_pCurrentText->hide();
-			m_PrompCounter = RESET_VALUE;
+			set_current_text(m_pCreditsText);
 		});
 		pCreditsButton->set_on_activated([=]()
 		{
@@ -227,9 +219,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		pQuitButton->set_on_just_lost_focus(lostFocus);
 		pQuitButton->set_on_just_gained_focus([=]()
 		{
-			m_pCurrentText = m_pQuitText;
-			m_pCurrentText->hide();
-			m_PrompCounter = RESET_VALUE;
+			set_current_text(m_pQuitText);
 		});
 		pQuitButton->set_on_activated([=]()
 		{
@@ -246,7 +236,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		});
 		title_pane->set_on_just_gained_top([&]()
 		{
-			m_pCurrentText = m_PromptText;
+			set_current_text(m_PromptText);
 		});
 
 		auto pStartPrompt = title_pane->make_element();
@@ -262,18 +252,9 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 void main_menu_screen::update(float delta, float aspectRatio, std::pair<int, int> windowSize)
 {
+    flappy::screen::update(delta, aspectRatio, windowSize);
+
 	m_menu->update();
-
-	if (++m_PrompCounter % BLINK_RATE == 0)
-	{
-		m_BlinkStatus = !m_BlinkStatus;
-
-		if (m_pCurrentText)
-		{
-			if (m_BlinkStatus) m_pCurrentText->show();
-			else m_pCurrentText->hide();
-		}
-	}
 	
 	m_VersionText->set_model_matrix({ +0.5f * aspectRatio, -0.5, 0 }, {}, { 0.035 });
 

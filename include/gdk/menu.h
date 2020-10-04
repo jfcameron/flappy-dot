@@ -145,11 +145,12 @@ namespace gdk
 		
 		~pane_impl() = default;
     };
-
+	
 	class menu
     {
 	public:
 		using input_functor_type = std::function<bool()>;
+		using on_open_close_functor_type = std::function<void()>;
 
 	private:
         std::stack<pane::pane_shared_ptr> m_stack;
@@ -165,7 +166,9 @@ namespace gdk
 		/// \brief pushes a pane to the stack
 		void push(pane::pane_shared_ptr p);
 
-		/// \brief pops the stack IF at least 1 pane would be left in it
+		/// \brief pops the stack
+		/// \remark if m_IsCloseable is false and the pop() call would empty the stack,
+		/// pop will have no effect.
 		void pop();
 
 		/// \brief call this in your game loop
@@ -179,7 +182,7 @@ namespace gdk
 			input_functor_type aLeftInput,
 			input_functor_type aRightInput,
 			input_functor_type aSelect,
-			input_functor_type aCancel);
+			input_functor_type aCancel); //TODO: Consider requiring a pane here, so never 0 stack.
     };
 }
 

@@ -15,9 +15,9 @@ namespace flappy
 	class background_music_player
 	{
 	public:
-		using screen_push_observer_type = gdk::event_bus<flappy::screen_pushed_event>::observer_shared_ptr_type;
+		using screen_push_observer_type = jfc::event_bus<flappy::screen_pushed_event>::observer_shared_ptr_type;
 
-		using screen_popped_observer_type = gdk::event_bus<flappy::screen_popped_event>::observer_shared_ptr_type;
+		using screen_popped_observer_type = jfc::event_bus<flappy::screen_popped_event>::observer_shared_ptr_type;
 
 	private:
 		std::map<std::string, gdk::audio::context::emitter_shared_ptr_type> m_ScreenNameToBGM;

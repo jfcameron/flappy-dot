@@ -11,9 +11,8 @@
 #include <gdk/input_context.h>
 #include <gdk/audio/context.h>
 
-#include <gdk/event_bus.h>
-
 #include <jfc/assets.h>
+#include <jfc/event_bus.h>
 #include <jfc/Coins.ogg.h>
 #include <jfc/glfw_window.h>
 #include <jfc/game_screen.h>

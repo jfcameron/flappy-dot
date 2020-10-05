@@ -14,7 +14,7 @@ add_subdirectory(thirdparty)
 
 jfc_project(executable
     NAME "flappy"
-    VERSION 0.0
+    VERSION 0.9
     DESCRIPTION "yet another flappy bird clone"
     C++_STANDARD 17
     C_STANDARD 90
@@ -22,20 +22,22 @@ jfc_project(executable
     PUBLIC_INCLUDE_DIRECTORIES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         
-        ${gdkgraphics_INCLUDE_DIRECTORIES} 
         ${gdkaudio_INCLUDE_DIRECTORIES} 
+        ${gdkgraphics_INCLUDE_DIRECTORIES} 
         ${gdkinput_INCLUDE_DIRECTORIES} 
         ${gdktextrenderer_INCLUDE_DIRECTORIES} 
+        ${jfceventbus_INCLUDE_DIRECTORIES} 
         ${simpleglfw_INCLUDE_DIRECTORIES}
 
     PRIVATE_INCLUDE_DIRECTORIES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include
 
     LIBRARIES
-        ${gdkgraphics_LIBRARIES}
         ${gdkaudio_LIBRARIES} 
+        ${gdkgraphics_LIBRARIES}
         ${gdkinput_LIBRARIES}
         ${gdktextrenderer_LIBRARIES}
+        ${jfceventbus_LIBRARIES} 
         ${simpleglfw_LIBRARIES}
 
     SOURCE_LIST
@@ -61,6 +63,7 @@ jfc_project(executable
 		"gdkgraphics"
 		"gdkinput"
 		"gdktextrenderer"
+		"jfceventbus"
 		"simpleglfw"
 )
 

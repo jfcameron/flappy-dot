@@ -1,7 +1,7 @@
 #ifndef JFC_FLAPPY_EVENT_BUS_H
 #define JFC_FLAPPY_EVENT_BUS_H
 
-#include <gdk/event_bus.h>
+#include <jfc/event_bus.h>
 
 #include <gdk/screen_stack.h>
 
@@ -45,12 +45,12 @@ namespace flappy
 
 	private:
 		/// \brief notifies observers that a screen has been pushed
-		gdk::event_bus<screen_pushed_event> m_ScreenPushed;
-		gdk::event_bus<screen_popped_event> m_ScreenPopped;
+		jfc::event_bus<screen_pushed_event> m_ScreenPushed;
+		jfc::event_bus<screen_popped_event> m_ScreenPopped;
 		
-		gdk::event_bus<player_count_changed_event> m_PlayerCountChanged;
-		gdk::event_bus<player_died_event> m_PlayerDied;
-		gdk::event_bus<player_wants_to_reset_event> m_PlayerWantsToReset;
+		jfc::event_bus<player_count_changed_event> m_PlayerCountChanged;
+		jfc::event_bus<player_died_event> m_PlayerDied;
+		jfc::event_bus<player_wants_to_reset_event> m_PlayerWantsToReset;
 
     public:
 		void add_player_wants_to_reset_observer(decltype(m_PlayerWantsToReset)::observer_weak_ptr_type pObserver);

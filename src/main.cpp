@@ -11,16 +11,18 @@
 #include <gdk/input_context.h>
 #include <gdk/audio/context.h>
 
-#include <jfc/assets.h>
-#include <jfc/event_bus.h>
 #include <jfc/Coins.ogg.h>
-#include <jfc/glfw_window.h>
-#include <jfc/game_screen.h>
-#include <jfc/main_menu_screen.h>
-#include <jfc/icon.png.h>
-#include <jfc/screen_stack.h>
-#include <jfc/flappy_event_bus.h>
+#include <jfc/assets.h>
 #include <jfc/background_music_player.h>
+#include <jfc/event_bus.h>
+#include <jfc/flappy_event_bus.h>
+#include <jfc/game_screen.h>
+#include <jfc/glfw_window.h>
+#include <jfc/icon.png.h>
+#include <jfc/main_menu_screen.h>
+#include <jfc/screen_stack.h>
+
+#include <gdk/state_machine.h>
 
 #include <GLFW/glfw3.h>
 

@@ -2,6 +2,16 @@
 
 using namespace flappy;
 
+void event_bus::add_player_wants_to_quit_observer(decltype(m_PlayerWantsToQuit)::observer_weak_ptr_type pObserver)
+{
+	m_PlayerWantsToQuit.add_observer(pObserver);
+}
+
+void event_bus::propagate_player_wants_to_quit_event(decltype(m_PlayerWantsToQuit)::event_type e)
+{
+	m_PlayerWantsToQuit.propagate_event(e);
+}
+
 void event_bus::add_player_wants_to_reset_observer(decltype(m_PlayerWantsToReset)::observer_weak_ptr_type pObserver)
 {
 	m_PlayerWantsToReset.add_observer(pObserver);

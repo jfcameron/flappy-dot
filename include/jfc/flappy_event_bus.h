@@ -38,6 +38,12 @@ namespace flappy
 		flappy::game *const game;
 	};
 
+	struct player_wants_to_quit_event
+	{
+		/// \warn strictly for comparisons!
+		flappy::game* const game;
+	};
+
 	/// \brief wrapper for all the event buses used in the program.
     class event_bus final
     {
@@ -51,8 +57,12 @@ namespace flappy
 		jfc::event_bus<player_count_changed_event> m_PlayerCountChanged;
 		jfc::event_bus<player_died_event> m_PlayerDied;
 		jfc::event_bus<player_wants_to_reset_event> m_PlayerWantsToReset;
+		jfc::event_bus<player_wants_to_quit_event> m_PlayerWantsToQuit;
 
     public:
+		void add_player_wants_to_quit_observer(decltype(m_PlayerWantsToQuit)::observer_weak_ptr_type pObserver);
+		void propagate_player_wants_to_quit_event(decltype(m_PlayerWantsToQuit)::event_type e);
+
 		void add_player_wants_to_reset_observer(decltype(m_PlayerWantsToReset)::observer_weak_ptr_type pObserver);
 		void propagate_player_wants_to_reset_event(decltype(m_PlayerWantsToReset)::event_type e);
 

@@ -114,9 +114,13 @@ namespace flappy
 
 		decltype(pane::make_pane()) m_game_over_pane;
 
+		/// \brief used to pass messages around the application
 		std::shared_ptr<flappy::event_bus> m_EventBus;
 
 		void updateHighScore();
+
+		/// \brief reacts to state changes in the player bird
+		std::shared_ptr<bird::state_machine_type::observer_type> m_BirdObserver;
 
 	public:
 		/// \brief resets state to a freshly constructed game

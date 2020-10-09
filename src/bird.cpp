@@ -16,12 +16,14 @@ static constexpr float player_gravity_acceleration(0.155f);
 /// \brief upward vertical speed assigned to the player when pressing the jump button
 static constexpr float player_jump_speed(0.03f);
 
+/// TODO Move to animator2d class
 static const std::array<graphics_vector2_type, 4> FLAPPING_ANIMATION{
 	graphics_vector2_type(1, 0),
 	graphics_vector2_type(0, 0),
 	graphics_vector2_type(2, 0),
 	graphics_vector2_type(0, 0)
 };
+////
 
 bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::graphics::context::scene_shared_ptr_type pScene,
@@ -29,6 +31,7 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 	gdk::audio::context::context_shared_ptr_type pAudio,
 	flappy::assets::shared_ptr aAssets)
 	: m_pInput(pInput)
+	, m_state(bird::state::alive)
 {
 	m_Position.x = player_x;
 
@@ -47,34 +50,71 @@ bird::bird(gdk::graphics::context::context_shared_ptr_type pContext,
 
 void bird::update(float delta, std::vector<pipe> pipes)
 {
-	// Animate
-	accumulator += delta;
-
-	if (accumulator > 0.25f)
+	switch (m_state.get())
 	{
-		accumulator = 0;
-	
-		if (++frameIndex >= FLAPPING_ANIMATION.size()) frameIndex = 0;
+		case state::alive:
+		{
+			// Animate
+			{
+				accumulator += delta;
 
-		m_Material->setVector2("_UVOffset", FLAPPING_ANIMATION[frameIndex]);
+				if (accumulator > 0.25f)
+				{
+					accumulator = 0;
+
+					if (++frameIndex >= FLAPPING_ANIMATION.size()) frameIndex = 0;
+
+					m_Material->setVector2("_UVOffset", FLAPPING_ANIMATION[frameIndex]);
+				}
+			}
+
+			// Handle acceleration
+			{
+				if (m_VerticalSpeed > player_gravity_speed_limit)
+					m_VerticalSpeed -= delta * player_gravity_acceleration;
+
+				if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
+				{
+					m_VerticalSpeed = player_jump_speed;
+
+					m_JumpSFX->play();
+				}
+
+				m_Position.y += m_VerticalSpeed;
+			}
+
+			// Handle collision
+			{
+				// check too high or too low
+				if (m_Position.y <= -0.5f || m_Position.y >= +0.7f) m_state.set(state::dead);
+				else
+				{
+					// check pipe collisions
+					auto wpos = get_world_position();
+
+					for (auto& pipe : pipes)
+					{
+						if (pipe.check_collision(wpos)) m_state.set(state::dead);
+					}
+				}
+			}
+
+			// apply translation to the graphics entity
+			m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.01f },
+				{ {0, 0, -m_VerticalSpeed * 40} },
+				{ 0.2, 0.2, 0 });
+		} break;
+
+		case state::dead:
+		{
+			//TODO: ??
+		} break;
 	}
+}
 
-	// Handle acceleration
-	if (m_VerticalSpeed > player_gravity_speed_limit) 
-		m_VerticalSpeed -= delta * player_gravity_acceleration;
-
-	if (m_pInput->get_key_just_pressed(gdk::keyboard::Key::Space))
-	{
-		m_VerticalSpeed = player_jump_speed;
-
-		m_JumpSFX->play();
-	}
-
-	m_Position.y += m_VerticalSpeed;
-
-	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.01f }, 
-		{ {0, 0, -m_VerticalSpeed * 40} }, 
-		{ 0.2, 0.2, 0 });
+void bird::add_observer(decltype(m_state)::observer_ptr p)
+{
+	m_state.add_observer(p);
 }
 
 gdk::graphics_mat4x4_type bird::get_world_position()

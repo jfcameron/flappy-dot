@@ -50,7 +50,6 @@ namespace gdk
 
 		void set_on_just_lost_focus(const decltype(m_just_lost_focus)& a);
 
-
 		void set_north_neighbour(neighbour_weakptr_type p);
 
 		decltype(m_north_neighbour) get_north_neighbour() const;
@@ -87,7 +86,7 @@ namespace gdk
 	protected:
 		void set_current_element(decltype(m_current_element) e);
 
-		decltype(m_current_element) get_current_element();
+		decltype(m_current_element) get_current_element() const;
 
 	public:
 		static pane::pane_shared_ptr make_pane();

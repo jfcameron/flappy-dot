@@ -56,6 +56,9 @@ namespace gdk
 		/// \brief watches for when a player wants to reset their game
 		std::shared_ptr <std::function<void(flappy::player_wants_to_reset_event)>> m_PlayerWantsToResetObserver;
 
+		/// \brief watches for when a player wants to quit their game
+		std::shared_ptr <std::function<void(flappy::player_wants_to_quit_event)>> m_PlayerWantsToQuitObserver;
+
 		/// \brief used to render a black screen behind the game instances
 		gdk::graphics::context::scene_shared_ptr_type m_pBlackBGScene;
 

@@ -83,7 +83,7 @@ void pane::set_current_element(decltype(m_current_element) e)
 	m_current_element->m_just_gained_focus();
 }
 
-decltype(pane::m_current_element) pane::get_current_element()
+decltype(pane::m_current_element) pane::get_current_element() const
 {
 	return m_current_element;
 }

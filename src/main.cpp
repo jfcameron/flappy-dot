@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 		audio::context::make(audio::context::implementation::openal)));
 
 	auto pAssets = std::shared_ptr<flappy::assets>(new flappy::assets(pGraphicsContext, 
-		pAudioContext));
+		pAudioContext, pInputContext));
 
 	// Setting up top level game abstractions
 	auto pEventBus = std::make_shared<flappy::event_bus>(flappy::event_bus());

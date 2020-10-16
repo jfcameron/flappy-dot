@@ -20,7 +20,8 @@ using namespace flappy;
 using namespace gdk;
 
 assets::assets(decltype(m_pGraphics) aGraphics, 
-	decltype(m_pAudio) aAudio)
+	decltype(m_pAudio) aAudio,
+	input::context::context_shared_ptr_type pInput)
 	: m_pGraphics(aGraphics)
 	, m_pAudio(aAudio)
 	, m_CoinSound(m_pAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(

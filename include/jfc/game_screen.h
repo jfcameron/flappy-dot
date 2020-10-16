@@ -36,7 +36,10 @@
 
 namespace gdk
 {
-	// TOOD: instead of popped/pushed, swithc to gained_top, lost_top.
+	/// \brief manages the game instances, splits the screen.
+	///
+	/// each concurrent player gets their own game instance and their own split
+	/// of the total screen
 	class game_screen final : public flappy::screen
 	{
 		/// \brief collection of games,

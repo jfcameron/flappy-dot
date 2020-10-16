@@ -21,6 +21,9 @@
 
 namespace gdk
 {
+	/// \brief entrypoint for the game's GUI
+	//
+	// main_menu_screen is the root of the menu system.
 	class main_menu_screen final : public flappy::screen
 	{
 		gdk::graphics::context::scene_shared_ptr_type m_pMainScene;

@@ -34,6 +34,7 @@
 
 namespace flappy
 {
+	/// \brief logic for a single instance of the game
 	class game final
 	{
 		static constexpr int BLINK_RATE = 26;

@@ -19,8 +19,12 @@
 #include <jfc/flappy_screen.h>
 #include <jfc/flappy_event_bus.h>
 
+#include <gdk/configurator.h>
+
 namespace flappy
 {
+	/// \brief the options screen allows users to customize
+	/// controls, enable/disable music.
 	class options_screen final : public flappy::screen
 	{
 		gdk::graphics::context::scene_shared_ptr_type m_pMainScene;
@@ -39,6 +43,12 @@ namespace flappy
 
 		//! header at top of screen
 		//std::shared_ptr<static_text_renderer> m_TitleText;
+
+		std::shared_ptr<gdk::configurator> m_pConfig;
+
+		//! TEMPORARY. Remove when config is working well 
+		// and I have thought of a proper place to store all the player controls.
+		std::shared_ptr<gdk::controls> m_pControls;
 		
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;

@@ -6,6 +6,7 @@
 #include <gdk/audio/context.h>
 #include <gdk/graphics_context.h>
 #include <gdk/text_map.h>
+#include <gdk/controls.h>
 
 #include <memory>
 #include <array>
@@ -56,9 +57,10 @@ namespace flappy
 		decltype(m_SpriteSheet) get_spritesheet() const;
 
 		decltype(m_FlapSound) get_flapsound() const;
-
+		
 		assets(decltype(m_pGraphics) aGraphics,
-			decltype(m_pAudio) pAudio);
+			decltype(m_pAudio) pAudio,
+			input::context::context_shared_ptr_type pInput);
 	};
 }
 

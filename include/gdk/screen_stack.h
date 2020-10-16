@@ -10,6 +10,7 @@
 
 namespace gdk
 {
+	// TOOD: instead of popped/pushed, swithc to gained_top, lost_top.
 	//TODO: replace "on pop" and "on push" with "on gained top" and "on lost top"
 	class screen_stack
 	{

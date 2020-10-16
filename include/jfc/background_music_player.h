@@ -30,14 +30,17 @@ namespace flappy
 
 		void handle_track_change(std::string name)
 		{
-			m_pCurrentBGM = m_ScreenNameToBGM[name];
-
-			for (auto p : m_ScreenNameToBGM)
+			if (auto s = m_ScreenNameToBGM.find(name); s != m_ScreenNameToBGM.end())
 			{
-				if (p.second != m_pCurrentBGM) p.second->stop();
-			}
+				m_pCurrentBGM = m_ScreenNameToBGM[name];
+			
+				for (auto p : m_ScreenNameToBGM)
+				{
+					if (p.second != m_pCurrentBGM) p.second->stop();
+				}
 
-			m_pCurrentBGM->play();
+				m_pCurrentBGM->play();
+			}
 		}
 
 	public:

@@ -17,9 +17,12 @@
 #include <jfc/event_bus.h>
 #include <jfc/flappy_event_bus.h>
 #include <jfc/game_screen.h>
+#include <jfc/main_menu_screen.h>
+#include <jfc/options_screen.h>
 #include <jfc/glfw_window.h>
 #include <jfc/icon.png.h>
-#include <jfc/main_menu_screen.h>
+#include <jfc/background.h>
+
 #include <jfc/screen_stack.h>
 
 #include <gdk/state_machine.h>
@@ -50,6 +53,7 @@ int main(int argc, char** argv)
 
 	screen_ptr_type pGameScreen;
 	screen_ptr_type pMainMenuScreen;
+	screen_ptr_type pOptionsScreen;
 
 	std::map<screen_ptr_type, std::string> screen_to_string;
 
@@ -70,17 +74,26 @@ int main(int argc, char** argv)
 		pEventBus,
 		pAssets));
 
+	pOptionsScreen = decltype(pMainMenuScreen)(new flappy::options_screen(pGraphicsContext,
+		pInputContext,
+		pAudioContext,
+		pScreens,
+		pEventBus,
+		pAssets));
+
 	pMainMenuScreen = decltype(pMainMenuScreen)(new gdk::main_menu_screen(pGraphicsContext,
 		pInputContext,
 		pAudioContext,
 		pScreens,
 		pGameScreen,
+		pOptionsScreen,
 		window,
 		pEventBus,
 		pAssets));
 
 	screen_to_string[pGameScreen] = "GameScreen"; //TODO: remove this map, just use ptr directly. no value to strings here
 	screen_to_string[pMainMenuScreen] = "MainMenu";
+	screen_to_string[pOptionsScreen] = "OptionsScreen";
 
 	flappy::background_music_player music(pEventBus, pAudioContext);
 
@@ -107,7 +120,7 @@ int main(int argc, char** argv)
 		pScreens->update(deltaTime, 
 			window->getAspectRatio(), 
 			window->getWindowSize());
-
+			
 		window->swapBuffer();
 
 		while (true)

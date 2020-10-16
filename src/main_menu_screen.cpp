@@ -29,12 +29,14 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	audio::context::context_shared_ptr_type aAudioContext,
 	screen_stack_ptr_type aScreens,
 	screen_ptr_type aGameScreen,
+	screen_ptr_type aOptionsScreen,
 	std::shared_ptr<glfw_window> aGLFWWindow,
 	std::shared_ptr<flappy::event_bus> aEventBus,
 	flappy::assets::shared_ptr aAssets)
 	: m_pInput(aInputContext)
 	, m_Screens(aScreens)
 	, m_GameScreen(aGameScreen)
+	, m_OptionsScreen(aOptionsScreen)
 	, m_pMainScene(graphics::context::scene_shared_ptr_type(std::move(aGraphicsContext->make_scene())))
 	, m_pMainCamera(std::shared_ptr<gdk::camera>(std::move(aGraphicsContext->make_camera())))
 	, scenery(flappy::scenery(aGraphicsContext, aGraphicsContext->get_alpha_cutoff_shader(), m_pMainScene, aAssets))
@@ -93,12 +95,21 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	m_PlayersCountText->add_to_scene(m_pMainScene);
 	m_PlayersCountText->hide();
 
+	m_pOptionsText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
+		map,
+		text_renderer::alignment::center,
+		L"options"
+	));
+	m_pOptionsText->set_model_matrix({ 0, -0.05f, 0 }, {}, { 0.05f });
+	m_pOptionsText->add_to_scene(m_pMainScene);
+	m_pOptionsText->hide();
+
 	m_pCreditsText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,
 		text_renderer::alignment::center,
 		L"credits"
 	));
-	m_pCreditsText->set_model_matrix({ 0, -0.05f, 0 }, {}, { 0.05f });
+	m_pCreditsText->set_model_matrix({ 0, -0.15f, 0 }, {}, { 0.05f });
 	m_pCreditsText->add_to_scene(m_pMainScene);
 	m_pCreditsText->hide();
 
@@ -107,7 +118,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"quit"
 	));
-	m_pQuitText->set_model_matrix({ 0, -0.15f, 0 }, {}, { 0.05f });
+	m_pQuitText->set_model_matrix({ 0, -0.25f, 0 }, {}, { 0.05f });
 	m_pQuitText->add_to_scene(m_pMainScene);
 	m_pQuitText->hide();
 
@@ -152,6 +163,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		{
 			m_StartText->show();
 			m_PlayersCountText->show();
+			m_pOptionsText->show();
 			m_pCreditsText->show();
 			m_pQuitText->show();
 		});
@@ -160,6 +172,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		{
 			m_StartText->hide();
 			m_PlayersCountText->hide();
+			m_pOptionsText->hide();
 			m_pCreditsText->hide();
 			m_pQuitText->hide();
 
@@ -168,6 +181,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 
 		auto pStartButton = main_pane->make_element();
 		auto pPlayersButton = main_pane->make_element();
+		auto pOptionsButton = main_pane->make_element();
 		auto pCreditsButton = main_pane->make_element();
 		auto pQuitButton = main_pane->make_element();
 
@@ -188,7 +202,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		});
 
 		pPlayersButton->set_north_neighbour(pStartButton);
-		pPlayersButton->set_south_neighbour(pCreditsButton);
+		pPlayersButton->set_south_neighbour(pOptionsButton);
 		pPlayersButton->set_on_just_lost_focus(lostFocus);
 		pPlayersButton->set_on_just_gained_focus([=]()
 		{
@@ -203,7 +217,19 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 			m_PlayersCountText->update_text(playerCountToText(m_PlayerCount));
 		});
 
-		pCreditsButton->set_north_neighbour(pPlayersButton);
+		pOptionsButton->set_north_neighbour(pPlayersButton);
+		pOptionsButton->set_south_neighbour(pCreditsButton);
+		pOptionsButton->set_on_just_lost_focus(lostFocus);
+		pOptionsButton->set_on_just_gained_focus([=]()
+		{
+			set_current_text(m_pOptionsText);
+		});
+		pOptionsButton->set_on_activated([=]()
+		{
+			m_Screens->push(m_OptionsScreen);
+		});
+
+		pCreditsButton->set_north_neighbour(pOptionsButton);
 		pCreditsButton->set_south_neighbour(pQuitButton);
 		pCreditsButton->set_on_just_lost_focus(lostFocus);
 		pCreditsButton->set_on_just_gained_focus([=]()

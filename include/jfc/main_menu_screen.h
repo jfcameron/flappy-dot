@@ -17,7 +17,6 @@
 #include <jfc/background.h>
 #include <jfc/glfw_window.h>
 #include <jfc/flappy_screen.h>
-
 #include <jfc/flappy_event_bus.h>
 
 namespace gdk
@@ -48,6 +47,9 @@ namespace gdk
 		//! main pane, credits button
 		std::shared_ptr<static_text_renderer> m_pCreditsText;
 
+		//! main pane, options button
+		std::shared_ptr<static_text_renderer> m_pOptionsText;
+
 		//! main pane, quit button
 		std::shared_ptr<static_text_renderer> m_pQuitText;
 
@@ -55,16 +57,15 @@ namespace gdk
 		std::shared_ptr<static_text_renderer> m_pCreditsContextText;
 
 		screen_stack_ptr_type m_Screens;
+
 		screen_ptr_type m_GameScreen;
+		screen_ptr_type m_OptionsScreen;
 
 		flappy::scenery scenery;
 
 		//! number of splitscreen players selected
 		int m_PlayerCount = 1;
-
-		//! used to hide/show current menu element
-		bool m_BlinkStatus = true;
-		
+				
 		std::shared_ptr<menu> m_menu;
 
 		std::shared_ptr<flappy::event_bus> m_pEventBus;
@@ -77,6 +78,7 @@ namespace gdk
 			audio::context::context_shared_ptr_type aAudioContext,
 			screen_stack_ptr_type aScreens,
 			screen_ptr_type aGameScreen,
+			screen_ptr_type aOptionsScreen,
 			std::shared_ptr<glfw_window> aGLFWWindow,
 			std::shared_ptr<flappy::event_bus> aEventBus,
 			flappy::assets::shared_ptr aAssets);

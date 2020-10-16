@@ -107,7 +107,7 @@ void bird::update(float delta, std::vector<pipe> pipes)
 
 		case state::dead:
 		{
-			//TODO: ??
+			//TODO: some sort of death animation.
 		} break;
 	}
 }

@@ -41,14 +41,32 @@ namespace flappy
 
 		//flappy::scenery scenery;
 
-		//! header at top of screen
-		//std::shared_ptr<static_text_renderer> m_TitleText;
-
+		std::vector<std::shared_ptr<static_text_renderer>> m_BindingNamesTexts;
+		
 		std::shared_ptr<gdk::configurator> m_pConfig;
 
 		//! TEMPORARY. Remove when config is working well 
 		// and I have thought of a proper place to store all the player controls.
 		std::shared_ptr<gdk::controls> m_pControls;
+
+
+		/// \brief pane to select a binding name from. root of the config sub menu
+		pane::pane_shared_ptr select_binding_pane;
+
+		/// \brief text used to show state of music on/off option
+		std::shared_ptr<dynamic_text_renderer> m_MusicText;
+
+		/// \brief text used to show state of volume % option
+		std::shared_ptr<dynamic_text_renderer> m_VolumeText;
+
+		/// \brief player config selector
+		std::shared_ptr<dynamic_text_renderer> m_PlayerConfigSelect;
+
+		/// \brief root pane of the options menu
+		pane::pane_shared_ptr m_main_pane;
+
+		/// \brief index of the player whose controls the user wants to configure
+		size_t m_player_to_configure = 0;
 		
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;

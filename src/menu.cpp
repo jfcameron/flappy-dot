@@ -18,6 +18,11 @@ void element::set_on_just_lost_focus(const decltype(m_just_lost_focus)& a)
 	m_just_lost_focus = a;
 }
 
+void element::set_while_focused(const decltype(m_while_focused)& a)
+{
+	m_while_focused = a;
+}
+
 void element::set_north_neighbour(neighbour_weakptr_type p)
 {
     m_north_neighbour = p;
@@ -109,6 +114,8 @@ void pane_impl::update(bool aUpInput,
 
 	if (auto currentElement = get_current_element())
 	{
+		currentElement->m_while_focused();
+
 		if (aSelectInput)
 		{
 			currentElement->m_activated_functor();

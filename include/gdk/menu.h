@@ -43,12 +43,16 @@ namespace gdk
 
 		on_focused_type m_just_lost_focus = []() {};
 
+		on_focused_type m_while_focused = []() {};
+
 	public:
 		void set_on_activated(const decltype(m_activated_functor)& a);
 
 		void set_on_just_gained_focus(const decltype(m_just_gained_focus)& a);
 
 		void set_on_just_lost_focus(const decltype(m_just_lost_focus)& a);
+
+		void set_while_focused(const decltype(m_while_focused)& a);
 
 		void set_north_neighbour(neighbour_weakptr_type p);
 

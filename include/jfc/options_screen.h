@@ -61,6 +61,18 @@ namespace flappy
 
 		/// \brief player config selector
 		std::shared_ptr<dynamic_text_renderer> m_PlayerConfigSelect;
+		
+		/// \brief indicates whether or not the current player's controls react to keyboard inputs
+		std::shared_ptr<dynamic_text_renderer> m_ActivateKeyboardText;
+
+		/// \brief indicates whether or not the current player's controls react to mouse inputs 
+		std::shared_ptr<dynamic_text_renderer> m_ActivateMouseText;
+
+		/// \brief text that indicates which gamepad is selected for the current player
+		std::shared_ptr<dynamic_text_renderer> m_SelectGamepadText;
+
+		/// \brief text showing binding option
+		std::shared_ptr<dynamic_text_renderer> m_ChangeBindingsText;
 
 		/// \brief root pane of the options menu
 		pane::pane_shared_ptr m_main_pane;

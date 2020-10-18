@@ -85,7 +85,7 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 	// m_main_pane
 	{
 		const float horizontal = 0.f;
-		float height = 0.25f;
+		float height = 0.3f;
 		const float height_offset = 0.075f;
 		const auto text_alignment = gdk::text_renderer::alignment::center;
 
@@ -100,7 +100,7 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 
 		height -= height_offset;
 
-		m_VolumeText = decltype(m_MusicText)(new dynamic_text_renderer(aGraphicsContext,
+		m_VolumeText = decltype(m_VolumeText)(new dynamic_text_renderer(aGraphicsContext,
 			aAssets->get_textmap(),
 			text_alignment,
 			L"Volume 100p"));
@@ -109,9 +109,9 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 		m_VolumeText->add_to_scene(m_pMainScene);
 		m_VolumeText->hide();
 
-		height -= height_offset;
+		height -= height_offset * 3;
 
-		m_PlayerConfigSelect = decltype(m_MusicText)(new dynamic_text_renderer(aGraphicsContext,
+		m_PlayerConfigSelect = decltype(m_PlayerConfigSelect)(new dynamic_text_renderer(aGraphicsContext,
 			aAssets->get_textmap(),
 			text_alignment,
 			L"Config Player 1"));
@@ -120,6 +120,50 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 		m_PlayerConfigSelect->add_to_scene(m_pMainScene);
 		m_PlayerConfigSelect->hide();
 
+		height -= height_offset;
+
+		m_ActivateKeyboardText = decltype(m_ActivateKeyboardText)(new dynamic_text_renderer(aGraphicsContext,
+			aAssets->get_textmap(),
+			text_alignment,
+			L"Keyboard ON"));
+
+		m_ActivateKeyboardText->set_model_matrix({ horizontal, height, 0 }, {}, { 0.05f });
+		m_ActivateKeyboardText->add_to_scene(m_pMainScene);
+		m_ActivateKeyboardText->hide();
+
+		height -= height_offset;
+
+		m_ActivateMouseText = decltype(m_ActivateMouseText)(new dynamic_text_renderer(aGraphicsContext,
+			aAssets->get_textmap(),
+			text_alignment,
+			L"Mouse ON"));
+
+		m_ActivateMouseText->set_model_matrix({ horizontal, height, 0 }, {}, { 0.05f });
+		m_ActivateMouseText->add_to_scene(m_pMainScene);
+		m_ActivateMouseText->hide();
+
+		height -= height_offset;
+
+		m_SelectGamepadText = decltype(m_SelectGamepadText)(new dynamic_text_renderer(aGraphicsContext,
+			aAssets->get_textmap(),
+			text_alignment,
+			L"Gamepad OFF"));
+
+		m_SelectGamepadText->set_model_matrix({ horizontal, height, 0 }, {}, { 0.05f });
+		m_SelectGamepadText->add_to_scene(m_pMainScene);
+		m_SelectGamepadText->hide();
+
+		height -= height_offset;
+
+		m_ChangeBindingsText = decltype(m_ChangeBindingsText)(new dynamic_text_renderer(aGraphicsContext,
+			aAssets->get_textmap(),
+			text_alignment,
+			L"Change bindings"));
+
+		m_ChangeBindingsText->set_model_matrix({ horizontal, height, 0 }, {}, { 0.05f });
+		m_ChangeBindingsText->add_to_scene(m_pMainScene);
+		m_ChangeBindingsText->hide();
+		
 		auto lostFocus = [=]()
 		{
 			show_current_text();
@@ -132,6 +176,10 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 				m_MusicText->show();
 				m_VolumeText->show();
 				m_PlayerConfigSelect->show();
+				m_ActivateKeyboardText->show();
+				m_ActivateMouseText->show();
+				m_SelectGamepadText->show();
+				m_ChangeBindingsText->show();
 			});
 
 			m_main_pane->set_on_just_lost_top([&]()
@@ -139,11 +187,19 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 				m_MusicText->hide();
 				m_VolumeText->hide();	
 				m_PlayerConfigSelect->hide();
+				m_ActivateKeyboardText->hide();
+				m_ActivateMouseText->hide();
+				m_SelectGamepadText->hide();
+				m_ChangeBindingsText->hide();
 			});
 
 			auto pMusicButton = m_main_pane->make_element();
 			auto pVolumeButton = m_main_pane->make_element();
 			auto pPlayerConfigButton = m_main_pane->make_element();
+			auto pActivateKeyboardButton = m_main_pane->make_element();
+			auto pActivateMouseButton = m_main_pane->make_element();
+			auto pSelectGamepadButton = m_main_pane->make_element();
+			auto pChangeBindingsButton = m_main_pane->make_element();
 
 			pMusicButton->set_south_neighbour(pVolumeButton);
 			pMusicButton->set_on_just_lost_focus(lostFocus);
@@ -184,6 +240,7 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 			});
 
 			pPlayerConfigButton->set_north_neighbour(pVolumeButton);
+			pPlayerConfigButton->set_south_neighbour(pActivateKeyboardButton);
 			pPlayerConfigButton->set_on_just_lost_focus(lostFocus);
 			pPlayerConfigButton->set_on_just_gained_focus([=]()
 			{
@@ -208,6 +265,80 @@ options_screen::options_screen(graphics::context::context_shared_ptr_type aGraph
 			pPlayerConfigButton->set_on_activated([=]()
 			{
 				//m_Screens->push(m_GameScreen);
+			});
+
+			pActivateKeyboardButton->set_north_neighbour(pPlayerConfigButton);
+			pActivateKeyboardButton->set_south_neighbour(pActivateMouseButton);
+			pActivateKeyboardButton->set_on_just_lost_focus(lostFocus);
+			pActivateKeyboardButton->set_on_just_gained_focus([=]()
+			{
+				set_current_text(m_ActivateKeyboardText);
+			});
+			pActivateKeyboardButton->set_on_activated([=]()
+			{
+				//change obviously, this is stub.
+				static bool bKeyboardActive(true);
+
+				bKeyboardActive = !bKeyboardActive;
+
+				m_ActivateKeyboardText->update_text(L"Keyboard " + std::wstring(bKeyboardActive ? L"ON" : L"OFF"));
+			});
+
+			pActivateMouseButton->set_north_neighbour(pActivateKeyboardButton);
+			pActivateMouseButton->set_south_neighbour(pSelectGamepadButton);
+			pActivateMouseButton->set_on_just_lost_focus(lostFocus);
+			pActivateMouseButton->set_on_just_gained_focus([=]()
+			{
+				set_current_text(m_ActivateMouseText);
+			});
+			pActivateMouseButton->set_on_activated([=]()
+			{
+				//change obviously, this is stub.
+				static bool bMouseActive(true);
+
+				bMouseActive = !bMouseActive;
+
+				m_ActivateMouseText->update_text(L"Mouse " + std::wstring(bMouseActive ? L"ON" : L"OFF"));
+			});
+
+			pSelectGamepadButton->set_north_neighbour(pActivateMouseButton);
+			pSelectGamepadButton->set_south_neighbour(pChangeBindingsButton);
+			pSelectGamepadButton->set_on_just_lost_focus(lostFocus);
+			pSelectGamepadButton->set_on_just_gained_focus([=]()
+			{
+				set_current_text(m_SelectGamepadText);
+			});
+			pSelectGamepadButton->set_while_focused([=]()
+			{
+				//change obviously, this is stub.
+				static const short int MAX_GAMEPADS(4);
+				static short int gamepad_index(0);
+
+				if (m_pInput->get_key_just_pressed(keyboard::Key::LeftArrow))
+					if (gamepad_index > 0) gamepad_index--;
+
+				if (m_pInput->get_key_just_pressed(keyboard::Key::RightArrow))
+					if (gamepad_index < MAX_GAMEPADS) gamepad_index++;
+				
+				m_SelectGamepadText->update_text(L"Gamepad " + std::wstring(gamepad_index == 0
+					? L"OFF" 
+					: std::to_wstring(0 + gamepad_index)));
+			});
+
+			//pChangeBindingsButton
+			pChangeBindingsButton->set_north_neighbour(pSelectGamepadButton);
+			pChangeBindingsButton->set_on_just_lost_focus(lostFocus);
+			pChangeBindingsButton->set_on_just_gained_focus([=]()
+			{
+				set_current_text(m_ChangeBindingsText);
+			});
+			pChangeBindingsButton->set_while_focused([=]()
+			{
+
+			});
+			pChangeBindingsButton->set_on_activated([=]()
+			{
+
 			});
 		}
 	}

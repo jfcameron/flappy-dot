@@ -41,31 +41,32 @@ jfc_project(executable
         ${simpleglfw_LIBRARIES}
 
     SOURCE_LIST
-		${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/options_screen.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/options_screen.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/control.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+#       ${CMAKE_CURRENT_SOURCE_DIR}/src/test_main.cpp
 
     DEPENDENCIES
+        "gdkgraphics"
         "gdkaudio"
-		"gdkgraphics"
-		"gdkinput"
-		"gdktextrenderer"
-		"jfceventbus"
-		"simpleglfw"
+        "gdkinput"
+        "gdktextrenderer"
+        "jfceventbus"
+        "simpleglfw"
 )
 
 # Hides the console window when building for windows

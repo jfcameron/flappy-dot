@@ -1,6 +1,8 @@
 #ifndef JFC_FLAPPY_EVENT_BUS_H
 #define JFC_FLAPPY_EVENT_BUS_H
 
+#include <string>
+
 #include <jfc/event_bus.h>
 
 #include <gdk/screen_stack.h>

@@ -3,10 +3,11 @@
 #ifndef GDK_MENU_H
 #define GDK_MENU_H
 
-#include <gdk/vector2.h>
-
 #include <functional>
+#include <memory>
 #include <stack>
+
+#include <gdk/vector2.h>
 
 namespace gdk
 {

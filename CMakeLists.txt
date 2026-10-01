@@ -31,8 +31,23 @@ add_executable(flappy
     ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_renderer.cpp)
 
+# Embed the textures as headers: assets/textures/Foo.png -> <jfc/Foo.png.h>, symbol Foo_png
+file(GLOB _flappy_textures CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/assets/textures/*.png")
+
+foreach(_texture ${_flappy_textures})
+    get_filename_component(_texture_name "${_texture}" NAME)
+    string(MAKE_C_IDENTIFIER "${_texture_name}" _texture_symbol)
+
+    jfc_embed_file("${_texture_symbol}" "${_texture}"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated_include/jfc/${_texture_name}.h")
+
+    # re-embed when the texture changes
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_texture}")
+endforeach()
+
 target_include_directories(flappy PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/generated_include)
 
 target_compile_features(flappy PRIVATE cxx_std_20)
 

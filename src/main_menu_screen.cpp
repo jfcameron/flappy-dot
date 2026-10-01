@@ -240,7 +240,7 @@ main_menu_screen::main_menu_screen(graphics::context_ptr_type aGraphicsContext,
 		{
 			set_current_text(m_pQuitText);
 		});
-		pQuitButton->set_on_activated([=, this]()
+		pQuitButton->set_on_activated([=]()
 		{
 			aWindow->close();
 		});

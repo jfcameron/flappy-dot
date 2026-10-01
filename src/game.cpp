@@ -30,7 +30,6 @@ game::game(graphics::context_ptr_type pGraphicsContext,
 	, scenery(flappy::scenery(pGraphicsContext, pGameScene, aAssets))
 	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio, aAssets))
 	, m_screens(aScreens)
-	, m_EventBus(aEventBus)
 	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
 		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::uparrow);},
 		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::downarrow);},
@@ -38,6 +37,7 @@ game::game(graphics::context_ptr_type pGraphicsContext,
 		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::rightarrow);},
 		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::enter);},
 		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::escape);})))
+	, m_EventBus(aEventBus)
 	, m_BirdObserver(std::make_shared<bird::state_machine_type::observer_type>(
 		[&](bird::state aOld, bird::state aNew)
 		{

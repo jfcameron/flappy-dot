@@ -10,9 +10,11 @@ Uses various jfc- and gdk- libraries found on this github account. See the submo
 
 ```
 git clone --recursive https://github.com/jfcameron/flappy-dot.git
-cmake -S flappy-dot -B build
-cmake --build build
-./build/flappy
+cd flappy-dot
+cmake --preset linux-gcc        # or linux-clang, macos-clang, windows-msvc
+cmake --build --preset linux-gcc
 ```
 
-On Linux, glfw builds its Wayland backend by default, which needs `wayland-scanner`. To build for X11 only, configure with `-DGLFW_BUILD_WAYLAND=OFF`.
+The executable is written to `out/build/<preset>/`.
+
+On Linux, glfw needs the X11 and Wayland development packages (on Debian/Ubuntu: `xorg-dev libwayland-dev libxkbcommon-dev wayland-protocols`). The `linux-clang` preset builds against libc++ (`libc++-dev libc++abi-dev`), since OpenAL does not currently compile with clang and libstdc++. See `.github/workflows/ci.yml` for the full list of packages.

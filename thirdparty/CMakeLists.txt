@@ -6,6 +6,12 @@ set(JFC_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 # gdk-graphics brings gdk-windowing (glfw), gdk-math, gdk-time; the others reuse those targets
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/gdk-graphics")
+# gdk-input's magic_enum instantiates a fold expression over its default enum range of 257 values,
+# one more than clang's default nesting limit of 256
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fbracket-depth=512>)
+endif()
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/gdk-input")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/gdk-audio")
 

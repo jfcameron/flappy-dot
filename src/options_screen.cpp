@@ -263,7 +263,7 @@ options_screen::options_screen(graphics::context_ptr_type aGraphicsContext,
 				
 				m_PlayerConfigSelect->update_text(L"Config Player " + std::to_wstring(1 + m_player_to_configure));
 			});
-			pPlayerConfigButton->set_on_activated([=, this]()
+			pPlayerConfigButton->set_on_activated([=]()
 			{
 				//m_Screens->push(m_GameScreen);
 			});
@@ -333,11 +333,11 @@ options_screen::options_screen(graphics::context_ptr_type aGraphicsContext,
 			{
 				set_current_text(m_ChangeBindingsText);
 			});
-			pChangeBindingsButton->set_while_focused([=, this]()
+			pChangeBindingsButton->set_while_focused([=]()
 			{
 
 			});
-			pChangeBindingsButton->set_on_activated([=, this]()
+			pChangeBindingsButton->set_on_activated([=]()
 			{
 
 			});

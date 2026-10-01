@@ -1,9 +1,9 @@
 // © 2020 Joseph Cameron - All Rights Reserved
 #include <jfc/flappy_screen.h>
 
-void flappy::screen::update(float delta, 
-	float aspectRatio, 
-	std::pair<int, int> windowSize)
+void flappy::screen::update([[maybe_unused]] float delta, 
+	[[maybe_unused]] float aspectRatio, 
+	[[maybe_unused]] std::pair<int, int> windowSize)
 {
 	if (++m_PrompCounter % BLINK_RATE == 0)
 	{

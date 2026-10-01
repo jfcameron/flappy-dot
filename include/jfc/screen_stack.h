@@ -1,10 +1,11 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef SCREEN_STACK_H
 #define SCREEN_STACK_H
 
-#include <stack>
+#include <functional>
 #include <memory>
+#include <stack>
 
 #include <gdk/screen.h>
 

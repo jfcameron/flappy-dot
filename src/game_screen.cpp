@@ -115,15 +115,20 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 
 	m_pBlackBGScene->draw({ windowSize.first, windowSize.second });
 
-	auto zeroedPlayerCount = m_games.size() - 1;
+	// A game's retry and quit buttons replace that game from inside its own update, via the event
+	// bus. Updating a copy of the collection keeps each game alive until its update has returned;
+	// the replacement is updated from the next frame on.
+	const auto games = m_games;
 
-	for (decltype(m_games)::size_type i(0); i < m_games.size(); ++i)
+	auto zeroedPlayerCount = games.size() - 1;
+
+	for (decltype(m_games)::size_type i(0); i < games.size(); ++i)
 	{
 		auto ratio =		
 			(layouts[zeroedPlayerCount][i].winsizeScale.first * static_cast<float>(windowSize.first))/
 			(layouts[zeroedPlayerCount][i].winsizeScale.second * static_cast<float>(windowSize.second));
 
-		m_games[i]->update(deltaTime,
+		games[i]->update(deltaTime,
 			ratio,
 			windowSize,
 			layouts[zeroedPlayerCount][i].topLeft,

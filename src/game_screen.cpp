@@ -2,9 +2,9 @@
 
 using namespace gdk;
 
-game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsContext,
-	input::context::context_shared_ptr_type aInputContext,
-	audio::context::context_shared_ptr_type aAudio,
+game_screen::game_screen(graphics::context_ptr_type pGraphicsContext,
+	input::context_ptr_type aInputContext,
+	audio::scene_shared_ptr_type aAudio,
 	screen_stack_ptr_type aScreens,
 	std::shared_ptr<flappy::event_bus> aEventBus,
 	flappy::assets::shared_ptr aAssets)
@@ -61,12 +61,12 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 			//if top == this pop else no
 			m_Screens->pop();
 		}))
-	, m_pBlackBGScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
-	, m_pBlackBGCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
+	, m_pBlackBGScene(pGraphicsContext->make_scene())
+	, m_pBlackBGCamera(pGraphicsContext->make_camera())
 {
-	m_pBlackBGCamera->set_clear_color({});
+	m_pBlackBGCamera->set_clear_color(graphics::color::black);
 
-	m_pBlackBGScene->add_camera(m_pBlackBGCamera);
+	m_pBlackBGScene->add(m_pBlackBGCamera);
 	
 	(*m_PlayerCountChangedObserver)({ 1 });
 
@@ -113,9 +113,7 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 		},
 	});
 
-	m_pBlackBGScene->draw(windowSize);
-
-	std::pair<int, int> size = { 1, 1 };
+	m_pBlackBGScene->draw({ windowSize.first, windowSize.second });
 
 	auto zeroedPlayerCount = m_games.size() - 1;
 

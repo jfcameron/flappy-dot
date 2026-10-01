@@ -1,84 +1,49 @@
 # © 2020 Joseph Cameron - All Rights Reserved
 
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
-
-project(null)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/jfc-cmake/jfclib.cmake")
 
-option(JFC_BUILD_DEMO "Build the demo" OFF)
-option(JFC_BUILD_DOCS "Build documentation" OFF)
-option(JFC_BUILD_TESTS "Build unit tests" OFF)
+project(flappy
+    VERSION 0.9
+    DESCRIPTION "yet another flappy bird clone")
 
 add_subdirectory(thirdparty)
 
-jfc_project(executable
-    NAME "flappy"
-    VERSION 0.9
-    DESCRIPTION "yet another flappy bird clone"
-    C++_STANDARD 17
-    C_STANDARD 90
+add_executable(flappy
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/options_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/dynamic_text_renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/static_text_renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_renderer.cpp)
 
-    PUBLIC_INCLUDE_DIRECTORIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        
-        ${gdkaudio_INCLUDE_DIRECTORIES} 
-        ${gdkgraphics_INCLUDE_DIRECTORIES} 
-        ${gdkinput_INCLUDE_DIRECTORIES} 
-        ${gdktextrenderer_INCLUDE_DIRECTORIES} 
-        ${jfceventbus_INCLUDE_DIRECTORIES} 
-        ${simpleglfw_INCLUDE_DIRECTORIES}
+target_include_directories(flappy PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-    PRIVATE_INCLUDE_DIRECTORIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+target_compile_features(flappy PRIVATE cxx_std_20)
 
-    LIBRARIES
-        ${gdkaudio_LIBRARIES} 
-        ${gdkgraphics_LIBRARIES}
-        ${gdkinput_LIBRARIES}
-        ${gdktextrenderer_LIBRARIES}
-        ${jfceventbus_LIBRARIES} 
-        ${simpleglfw_LIBRARIES}
-
-    SOURCE_LIST
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/options_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/control.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-#       ${CMAKE_CURRENT_SOURCE_DIR}/src/test_main.cpp
-
-    DEPENDENCIES
-        "gdkgraphics"
-        "gdkaudio"
-        "gdkinput"
-        "gdktextrenderer"
-        "jfceventbus"
-        "simpleglfw"
-)
+target_link_libraries(flappy PRIVATE
+    gdkaudio
+    gdkgraphics
+    gdkinput
+    gdktime
+    gdkwindow
+    jfceventbus)
 
 # Hides the console window when building for windows
 #set_target_properties(flappy PROPERTIES 
 #    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
-
-if (JFC_BUILD_TESTS)
-    add_subdirectory(test)
-endif()
-
-if (JFC_BUILD_DOCS)
-    add_subdirectory(docs)
-endif()
-
-# TODO: TOOLS, etc

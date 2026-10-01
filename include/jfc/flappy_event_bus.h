@@ -7,6 +7,8 @@
 
 #include <gdk/screen_stack.h>
 
+#include <cstddef>
+
 namespace flappy
 {
 	class game;

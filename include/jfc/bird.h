@@ -1,13 +1,15 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef JFC_FLAPPY_BIRD_H
 #define JFC_FLAPPY_BIRD_H
 
-#include <gdk/graphics_context.h>
-#include <gdk/audio/context.h>
-#include <gdk/scene.h>
-#include <gdk/entity.h>
-#include <gdk/input_context.h>
+#include <gdk/audio/emitter.h>
+#include <gdk/audio/scene.h>
+#include <gdk/graphics/context.h>
+#include <gdk/graphics/entity.h>
+#include <gdk/graphics/material.h>
+#include <gdk/graphics/scene.h>
+#include <gdk/input/context.h>
 #include <gdk/state_machine.h>
 
 #include <jfc/pipe.h>
@@ -40,16 +42,16 @@ namespace flappy
 		state_machine_type m_state;
 
 		/// \brief ptr to input system
-		gdk::input::context::context_shared_ptr_type m_pInput;
+		gdk::input::context_ptr_type m_pInput;
 
 		/// \brief ptr to the graphics entity
-		std::shared_ptr<gdk::entity> m_Entity;
+		gdk::graphics::entity_ptr_type m_Entity;
 
 		/// \brief material used to decorate the entity
-		std::shared_ptr<gdk::material> m_Material;
+		gdk::graphics::material_ptr_type m_Material;
 
 		/// \brief emits the jump sound effect
-		std::shared_ptr<gdk::audio::emitter> m_JumpSFX;
+		gdk::audio::emitter_shared_ptr_type m_JumpSFX;
 
 		//TODO: move to an animator2d class
 		float accumulator = 0;
@@ -60,19 +62,17 @@ namespace flappy
 		float m_VerticalSpeed = 0;
 
 		/// \brief x,y position of the bird.
-		gdk::Vector2<float> m_Position;
-		
-		gdk::graphics_mat4x4_type get_world_position();
+		gdk::graphics::vector2_type m_Position;
 
 	public:
 		void add_observer(decltype(m_state)::observer_ptr p);
 
-		void update(float delta, std::vector<pipe> pipes);
+		void update(float delta, const std::vector<pipe> &pipes);
 
-		bird(gdk::graphics::context::context_shared_ptr_type pContext,
-			gdk::graphics::context::scene_shared_ptr_type pScene,
-			gdk::input::context::context_shared_ptr_type pInput,
-			gdk::audio::context::context_shared_ptr_type pAudio,
+		bird(gdk::graphics::context_ptr_type pContext,
+			gdk::graphics::scene_ptr_type pScene,
+			gdk::input::context_ptr_type pInput,
+			gdk::audio::scene_shared_ptr_type pAudio,
 			flappy::assets::shared_ptr aAssets);
 	};
 }

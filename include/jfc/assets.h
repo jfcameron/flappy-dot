@@ -1,12 +1,12 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef FLAPPY_ASSETS_H
 #define FLAPPY_ASSETS_H
 
-#include <gdk/audio/context.h>
-#include <gdk/graphics_context.h>
+#include <gdk/audio/scene.h>
+#include <gdk/audio/sound.h>
+#include <gdk/graphics/context.h>
 #include <gdk/text_map.h>
-#include <gdk/controls.h>
 
 #include <memory>
 #include <array>
@@ -24,30 +24,37 @@ namespace flappy
 
 	private:
 		/// \brief ptr to the graphics context used throughout flappy
-		graphics::context::context_shared_ptr_type m_pGraphics;
+		graphics::context_ptr_type m_pGraphics;
 
-		/// \brief ptr to the audio context used throughout flappy
-		audio::context::context_shared_ptr_type m_pAudio;
+		/// \brief shader used by all of the sprites in the game
+		graphics::shader_ptr_type m_AlphaCutoffShader;
+
+		/// \brief 1x1 quad, centered on the origin
+		graphics::model_ptr_type m_QuadModel;
 
 		/// \brief coin sound effect
-		audio::context::sound_shared_ptr_type m_CoinSound;
+		audio::sound_shared_ptr_type m_CoinSound;
 
 		/// \brief the texture containing the rasterized alphanumeric characters
-		std::shared_ptr<gdk::texture> m_TextTexture;
+		graphics::texture_ptr_type m_TextTexture;
 
 		/// \brief text map used throughout the program
 		text_map m_TextMap;
 
 		/// \brief textures used for the background layer of the game/menu scenes
-		std::array<std::shared_ptr<texture>, 8> m_BGLayerTextures;
+		std::array<graphics::texture_ptr_type, 8> m_BGLayerTextures;
 
 		/// \brief texture sheet containing bird graphics etc.
-		std::shared_ptr<gdk::texture> m_SpriteSheet;
+		graphics::texture_ptr_type m_SpriteSheet;
 
 		/// \brief bird flap sound effect
-		audio::context::sound_shared_ptr_type m_FlapSound;
+		audio::sound_shared_ptr_type m_FlapSound;
 
 	public:
+		decltype(m_AlphaCutoffShader) get_alpha_cutoff_shader() const;
+
+		decltype(m_QuadModel) get_quad_model() const;
+
 		decltype(m_CoinSound) get_coin_sound() const;
 
 		decltype(m_TextMap) get_textmap() const;
@@ -58,9 +65,7 @@ namespace flappy
 
 		decltype(m_FlapSound) get_flapsound() const;
 		
-		assets(decltype(m_pGraphics) aGraphics,
-			decltype(m_pAudio) pAudio,
-			input::context::context_shared_ptr_type pInput);
+		assets(decltype(m_pGraphics) aGraphics);
 	};
 }
 

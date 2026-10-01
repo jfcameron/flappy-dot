@@ -1,4 +1,4 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef FLAPPY_MAIN_MENU_SCREEN_H
 #define FLAPPY_MAIN_MENU_SCREEN_H
@@ -6,16 +6,18 @@
 #include <gdk/screen.h>
 
 #include <jfc/assets.h>
-#include <gdk/graphics_context.h>
-#include <gdk/input_context.h>
-#include <gdk/audio/context.h>
+#include <gdk/audio/scene.h>
+#include <gdk/graphics/context.h>
+#include <gdk/graphics/scene.h>
+#include <gdk/graphics/screen_camera.h>
+#include <gdk/input/context.h>
 #include <gdk/menu.h>
 #include <gdk/dynamic_text_renderer.h>
 #include <gdk/static_text_renderer.h>
 
 #include <jfc/screen_stack.h>
 #include <jfc/background.h>
-#include <jfc/glfw_window.h>
+#include <gdk/windowing/window.h>
 #include <jfc/flappy_screen.h>
 #include <jfc/flappy_event_bus.h>
 
@@ -26,11 +28,11 @@ namespace gdk
 	// main_menu_screen is the root of the menu system.
 	class main_menu_screen final : public flappy::screen
 	{
-		gdk::graphics::context::scene_shared_ptr_type m_pMainScene;
+		gdk::graphics::scene_ptr_type m_pMainScene;
 
-		input::context::context_shared_ptr_type m_pInput;
+		input::context_ptr_type m_pInput;
 
-		std::shared_ptr<gdk::camera> m_pMainCamera;
+		gdk::graphics::camera_ptr_type m_pMainCamera;
 
 		//! header at top of screen
 		std::shared_ptr<static_text_renderer> m_TitleText;
@@ -76,13 +78,13 @@ namespace gdk
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 
-		main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
-			input::context::context_shared_ptr_type aInputContext,
-			audio::context::context_shared_ptr_type aAudioContext,
+		main_menu_screen(graphics::context_ptr_type aGraphicsContext,
+			input::context_ptr_type aInputContext,
+			audio::scene_shared_ptr_type aAudio,
 			screen_stack_ptr_type aScreens,
 			screen_ptr_type aGameScreen,
 			screen_ptr_type aOptionsScreen,
-			std::shared_ptr<glfw_window> aGLFWWindow,
+			gdk::windowing::window_ptr_type aWindow,
 			std::shared_ptr<flappy::event_bus> aEventBus,
 			flappy::assets::shared_ptr aAssets);
 

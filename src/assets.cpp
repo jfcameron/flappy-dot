@@ -1,4 +1,4 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #include <jfc/assets.h>
 
@@ -16,18 +16,35 @@
 #include <jfc/Floor.png.h>
 #include <jfc/Sprite_Sheet.png.h>
 
+#include <gdk/graphics/ext/png.h>
+#include <gdk/graphics/model_data.h>
+
 using namespace flappy;
 using namespace gdk;
 
-assets::assets(decltype(m_pGraphics) aGraphics, 
-	decltype(m_pAudio) aAudio,
-	input::context::context_shared_ptr_type pInput)
+/// \brief decodes a png and uploads it to a texture
+static graphics::texture_ptr_type make_texture(graphics::context_ptr_type pGraphics,
+	const unsigned char *const aPNG, const size_t aSize)
+{
+	auto [view, pData] = graphics::ext::make_from_png({ aPNG, aSize });
+
+	return pGraphics->make_texture(view);
+}
+
+#define FLAPPY_MAKE_TEXTURE(png) make_texture(m_pGraphics, png, sizeof png)
+
+assets::assets(decltype(m_pGraphics) aGraphics)
 	: m_pGraphics(aGraphics)
-	, m_pAudio(aAudio)
-	, m_CoinSound(m_pAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
-		Coins_ogg, Coins_ogg + sizeof(Coins_ogg) / sizeof(Coins_ogg[0]))))
-	, m_TextTexture(std::shared_ptr<gdk::texture>(std::shared_ptr<texture>(std::move(m_pGraphics->make_texture(
-		{ Text_Sheet_png, Text_Sheet_png + sizeof Text_Sheet_png / sizeof Text_Sheet_png[0] })))))
+	, m_AlphaCutoffShader(m_pGraphics->make_alpha_cutoff_shader())
+	, m_QuadModel([&]()
+	{
+		auto quad = graphics::model_data::make_quad();
+		quad.transform("a_Position", { -0.5f, -0.5f, 0.f });
+
+		return m_pGraphics->make_model(graphics::model::usage_hint::upload_once, quad);
+	}())
+	, m_CoinSound(audio::make_vorbis_sound(Coins_ogg, sizeof Coins_ogg))
+	, m_TextTexture(FLAPPY_MAKE_TEXTURE(Text_Sheet_png))
 	, m_TextMap(m_TextTexture, { 8, 8 },
 	{
 		{'a', {0,0}},
@@ -101,20 +118,30 @@ assets::assets(decltype(m_pGraphics) aGraphics,
 		{'-', {1,5}},
 	})
 	, m_BGLayerTextures(decltype(m_BGLayerTextures){
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_0_png, Background_0_png + sizeof Background_0_png / sizeof Background_0_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_1_png, Background_1_png + sizeof Background_1_png / sizeof Background_1_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_2_png, Background_2_png + sizeof Background_2_png / sizeof Background_2_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_3_png, Background_3_png + sizeof Background_3_png / sizeof Background_3_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_4_png, Background_4_png + sizeof Background_4_png / sizeof Background_4_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_5_png, Background_5_png + sizeof Background_5_png / sizeof Background_5_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Background_6_png, Background_6_png + sizeof Background_6_png / sizeof Background_6_png[0] }))),
-		std::shared_ptr<texture>(std::move(m_pGraphics->make_texture({ Floor_png, Floor_png + sizeof Floor_png / sizeof Floor_png[0] })))
+		FLAPPY_MAKE_TEXTURE(Background_0_png),
+		FLAPPY_MAKE_TEXTURE(Background_1_png),
+		FLAPPY_MAKE_TEXTURE(Background_2_png),
+		FLAPPY_MAKE_TEXTURE(Background_3_png),
+		FLAPPY_MAKE_TEXTURE(Background_4_png),
+		FLAPPY_MAKE_TEXTURE(Background_5_png),
+		FLAPPY_MAKE_TEXTURE(Background_6_png),
+		FLAPPY_MAKE_TEXTURE(Floor_png)
 		})
-	, m_SpriteSheet(std::shared_ptr<texture>(std::move(m_pGraphics->make_texture(
-		{ Sprite_Sheet_png, Sprite_Sheet_png + sizeof Sprite_Sheet_png / sizeof Sprite_Sheet_png[0] }))))
-	, m_FlapSound(m_pAudio->make_sound(audio::sound::encoding_type::vorbis, std::vector<unsigned char>(
-		jump_ogg, jump_ogg + sizeof(jump_ogg) / sizeof(jump_ogg[0]))))
+	, m_SpriteSheet(FLAPPY_MAKE_TEXTURE(Sprite_Sheet_png))
+	, m_FlapSound(audio::make_vorbis_sound(jump_ogg, sizeof jump_ogg))
 {}
+
+#undef FLAPPY_MAKE_TEXTURE
+
+decltype(assets::m_AlphaCutoffShader) assets::get_alpha_cutoff_shader() const
+{
+	return m_AlphaCutoffShader;
+}
+
+decltype(assets::m_QuadModel) assets::get_quad_model() const
+{
+	return m_QuadModel;
+}
 
 decltype(assets::m_FlapSound) assets::get_flapsound() const
 {

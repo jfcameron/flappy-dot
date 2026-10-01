@@ -31,18 +31,20 @@ add_executable(flappy
     ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_renderer.cpp)
 
-# Embed the textures as headers: assets/textures/Foo.png -> <jfc/Foo.png.h>, symbol Foo_png
-file(GLOB _flappy_textures CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/assets/textures/*.png")
+# Embed the assets as headers: assets/*/Foo.ext -> <jfc/Foo.ext.h>, symbol Foo_ext
+file(GLOB _flappy_assets CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/sounds/*.ogg"
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/textures/*.png")
 
-foreach(_texture ${_flappy_textures})
-    get_filename_component(_texture_name "${_texture}" NAME)
-    string(MAKE_C_IDENTIFIER "${_texture_name}" _texture_symbol)
+foreach(_asset ${_flappy_assets})
+    get_filename_component(_asset_name "${_asset}" NAME)
+    string(MAKE_C_IDENTIFIER "${_asset_name}" _asset_symbol)
 
-    jfc_embed_file("${_texture_symbol}" "${_texture}"
-        "${CMAKE_CURRENT_BINARY_DIR}/generated_include/jfc/${_texture_name}.h")
+    jfc_embed_file("${_asset_symbol}" "${_asset}"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated_include/jfc/${_asset_name}.h")
 
-    # re-embed when the texture changes
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_texture}")
+    # re-embed when the asset changes
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_asset}")
 endforeach()
 
 target_include_directories(flappy PRIVATE

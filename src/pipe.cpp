@@ -7,12 +7,11 @@
 using namespace flappy;
 using namespace gdk;
 
-static const graphics::vector2_type PIPE_MOUTH_UP_GRAPHIC(0, 1);
-static const graphics::vector2_type PIPE_MOUTH_DOWN_GRAPHIC(1, 1);
+static const graphics::vector2_type PIPE_MOUTH_GRAPHIC(0, 1);
 static const graphics::vector2_type PIPE_TRUNK_GRAPHIC(3, 0);
 
 static graphics::model_data generatePipeModel(graphics::vector2_type aBottomTileCell, 
-	[[maybe_unused]] graphics::vector2_type aMiddleTileCell,
+	graphics::vector2_type aMiddleTileCell,
 	graphics::vector2_type aTopTileCell)
 {
 	using vertex_attribute_type = graphics::component_type;
@@ -50,6 +49,7 @@ static graphics::model_data generatePipeModel(graphics::vector2_type aBottomTile
 	// This is only really an issue for extremely low pixel count games (such as this one)
 
 	aBottomTileCell *= cellSize;
+	aMiddleTileCell *= cellSize;
 	aTopTileCell *= cellSize;
 
 	float bottom_xl = aBottomTileCell.x + sampleBias;
@@ -57,10 +57,10 @@ static graphics::model_data generatePipeModel(graphics::vector2_type aBottomTile
 	float bottom_xh = aBottomTileCell.x + cellSize - sampleBias;
 	float bottom_yh = aBottomTileCell.y + cellSize - sampleBias;
 
-	float middle_xl = aBottomTileCell.x + sampleBias;
-	float middle_yl = aBottomTileCell.y + sampleBias;
-	float middle_xh = aBottomTileCell.x + cellSize - sampleBias;
-	float middle_yh = aBottomTileCell.y + cellSize - sampleBias;
+	float middle_xl = aMiddleTileCell.x + sampleBias;
+	float middle_yl = aMiddleTileCell.y + sampleBias;
+	float middle_xh = aMiddleTileCell.x + cellSize - sampleBias;
+	float middle_yh = aMiddleTileCell.y + cellSize - sampleBias;
 
 	float top_xl = aTopTileCell.x + sampleBias;
 	float top_yl = aTopTileCell.y + sampleBias;
@@ -96,16 +96,10 @@ static graphics::model_data generatePipeModel(graphics::vector2_type aBottomTile
 	});
 }
 
-static const graphics::model_data &up_pipe_model_data()
+/// \brief mouth at the top, so a pipe rotated by pi hangs with its mouth at the bottom
+static const graphics::model_data &pipe_model_data()
 {
-	static const auto data = generatePipeModel(PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_MOUTH_UP_GRAPHIC);
-
-	return data;
-}
-
-static const graphics::model_data &down_pipe_model_data()
-{
-	static const auto data = generatePipeModel(PIPE_MOUTH_DOWN_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC);
+	static const auto data = generatePipeModel(PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_MOUTH_GRAPHIC);
 
 	return data;
 }
@@ -121,9 +115,8 @@ pipe::pipe(gdk::graphics::context_ptr_type pContext,
 	m_Material->set_vector2("_UVScale", { 1, 1 });
 	m_Material->set_vector2("_UVOffset", { 0, 0 });
 
-	m_Model = pContext->make_model(graphics::model::usage_hint::dynamic, up_pipe_model_data());
-
-	m_Entity = pContext->make_entity(m_Model, m_Material);
+	m_Entity = pContext->make_entity(
+		pContext->make_model(graphics::model::usage_hint::upload_once, pipe_model_data()), m_Material);
 	
 	pScene->add(m_Entity);
 }
@@ -153,15 +146,10 @@ decltype(pipe::m_Rotation) pipe::getRotation() const
 }
 
 void pipe::set_up(const decltype(m_Position)& aPosition, 
-	const decltype(m_Rotation) aRotation, 
-	const pipe::set_up_model &aModel)
+	const decltype(m_Rotation) aRotation)
 {
 	m_Position = aPosition;
 	m_Rotation = aRotation;
-
-	m_Model->upload(graphics::model::usage_hint::dynamic, aModel == pipe::set_up_model::up_pipe
-		? up_pipe_model_data()
-		: down_pipe_model_data());
 }
 
 bool pipe::check_collision(const graphics::vector2_type &aWorldPosition) const

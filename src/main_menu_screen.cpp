@@ -65,7 +65,7 @@ main_menu_screen::main_menu_screen(graphics::context_ptr_type aGraphicsContext,
 	m_PromptText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,
 		text_renderer::alignment::center,
-		L"space to start"
+		L"enter to start"
 	));
 	m_PromptText->set_transform({ 0, 0.0f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.075f));
 	m_PromptText->add_to_scene(m_pMainScene);

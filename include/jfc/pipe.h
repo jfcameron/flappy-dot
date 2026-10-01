@@ -20,22 +20,11 @@ namespace flappy
 	/// \brief the game's obstacles
 	class pipe final
 	{
-	public:
-		enum class set_up_model
-		{
-			up_pipe,
-			down_pipe
-		};
-
-	private:
 		//! position in the scene
 		gdk::graphics::entity_ptr_type m_Entity;
 
 		//! shader and uniform data
 		gdk::graphics::material_ptr_type m_Material;
-
-		//! vertex data of the pipe, either an up or down pipe depending on how the pipe was last set up
-		gdk::graphics::model_ptr_type m_Model;
 
 		gdk::graphics::vector2_type m_Position;
 		gdk::graphics::vector2_type m_Scale;
@@ -52,7 +41,7 @@ namespace flappy
 
 		bool check_collision(const gdk::graphics::vector2_type &aWorldPosition) const;
 
-		void set_up(const decltype(m_Position)& aPosition, const decltype(m_Rotation) aRotation, const set_up_model &aModel);
+		void set_up(const decltype(m_Position)& aPosition, const decltype(m_Rotation) aRotation);
 
 		pipe(gdk::graphics::context_ptr_type pContext,
 			gdk::graphics::scene_ptr_type pScene,

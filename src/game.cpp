@@ -159,16 +159,12 @@ game::game(graphics::context_ptr_type pGraphicsContext,
 
 		if (raw_random != 0)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height },
-				0,
-				flappy::pipe::set_up_model::up_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height }, 0);
 		}
 
 		if (raw_random != 7)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval },
-				3.1415926536f,
-				flappy::pipe::set_up_model::down_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval }, 3.1415926536f);
 		}
 
 		delay = standard_horizontal_delay * 2;
@@ -192,16 +188,12 @@ game::game(graphics::context_ptr_type pGraphicsContext,
 
 		if (raw_random >= 0.5f)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height },
-				0,
-				flappy::pipe::set_up_model::up_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height }, 0);
 		}
 
 		if (raw_random < 6.5f)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval },
-				3.1415926536f,
-				flappy::pipe::set_up_model::down_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval }, 3.1415926536f);
 		}
 
 		delay = standard_horizontal_delay * 1;

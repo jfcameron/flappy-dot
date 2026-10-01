@@ -1,34 +1,32 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 #include <jfc/background.h>
-
-#include <gdk/material.h>
 
 using namespace flappy;
 using namespace gdk;
 
-scenery::scenery(gdk::graphics::context::context_shared_ptr_type pContext,
-	gdk::graphics::context::shader_program_shared_ptr_type pShader,
-	gdk::graphics::context::scene_shared_ptr_type pScene,
+scenery::scenery(gdk::graphics::context_ptr_type pContext,
+	gdk::graphics::scene_ptr_type pScene,
 	flappy::assets::shared_ptr aAssets)
 {	
-	graphics_vector2_type scale(4, 1);
+	const graphics::vector2_type scale(4, 1);
 
 	// Create materials
 	for (std::remove_const<decltype(scenery::size)>::type i(0); i < size; ++i)
 	{
-		m_ParallaxMaterials[i] = std::shared_ptr<material>(std::move(pContext->make_material(pShader)));
-		m_ParallaxMaterials[i]->setTexture("_Texture", aAssets->get_bglayertextures()[i]);
-		m_ParallaxMaterials[i]->setVector2("_UVScale", scale);
+		m_ParallaxMaterials[i] = pContext->make_material(aAssets->get_alpha_cutoff_shader());
+		m_ParallaxMaterials[i]->set_texture("_Texture", aAssets->get_bglayertextures()[i]);
+		m_ParallaxMaterials[i]->set_vector2("_UVScale", scale);
+		m_ParallaxMaterials[i]->set_vector2("_UVOffset", { 0, 0 });
 	}
 
-	auto pQuadModel = std::shared_ptr<model>(pContext->get_quad_model());
+	auto pQuadModel = aAssets->get_quad_model();
 
 	int i(0); for (auto& a : m_ParallaxEntities)
 	{
-		a = std::shared_ptr<entity>(std::move(pContext->make_entity(pQuadModel, m_ParallaxMaterials[i])));
+		a = pContext->make_entity(pQuadModel, m_ParallaxMaterials[i]);
 
-		pScene->add_entity(a);
-		a->set_model_matrix(Vector3<float>{0, 0, -0.50f + (i++ * 0.01f)}, Quaternion<float>{ {0, 0, 0}}, { 4,1,1 });
+		pScene->add(a);
+		a->set_transform({0, 0, -0.50f + (static_cast<float>(i++) * 0.01f)}, graphics::quaternion_type::identity, { 4, 1, 1 });
 	}
 }
 
@@ -37,5 +35,5 @@ void scenery::update(const float delta)
 	time += delta;
 
 	int i(0); for (auto &a : m_ParallaxMaterials) 
-		a->setVector2("_UVOffset", { time * (0.0333f * i++) + 0.3f, 1 });
+		a->set_vector2("_UVOffset", { time * (0.0333f * static_cast<float>(i++)) + 0.3f, 1 });
 }

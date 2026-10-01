@@ -1,11 +1,12 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef JFC_FLAPPY_CITY_H
 #define JFC_FLAPPY_CITY_H
 
-#include <gdk/graphics_context.h>
-#include <gdk/scene.h>
-#include <gdk/entity.h>
+#include <gdk/graphics/context.h>
+#include <gdk/graphics/entity.h>
+#include <gdk/graphics/material.h>
+#include <gdk/graphics/scene.h>
 
 #include <jfc/assets.h>
 
@@ -23,13 +24,13 @@ namespace flappy
 		std::default_random_engine m_Random;
 
 		//! position in the scene
-		std::shared_ptr<gdk::entity> m_Entity;
+		gdk::graphics::entity_ptr_type m_Entity;
 
 		//! shader and uniform data
-		std::shared_ptr<gdk::material> m_Material;
+		gdk::graphics::material_ptr_type m_Material;
 
-		gdk::Vector2<float> m_Scale = gdk::Vector2<float>::One;
-		gdk::Vector3<float> m_Position;
+		gdk::graphics::vector2_type m_Scale = { 1, 1 };
+		gdk::graphics::vector3_type m_Position;
 
 		float m_Speed = 1;
 
@@ -38,8 +39,8 @@ namespace flappy
 	public:
 		void update(const float delta);
 
-		city(gdk::graphics::context::context_shared_ptr_type pContext,
-			gdk::graphics::context::scene_shared_ptr_type pScene,
+		city(gdk::graphics::context_ptr_type pContext,
+			gdk::graphics::scene_ptr_type pScene,
 			flappy::assets::shared_ptr aassets);
 		~city() = default;
 	};

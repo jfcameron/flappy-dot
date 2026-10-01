@@ -5,7 +5,9 @@
 
 #include <jfc/event_bus.h>
 
-#include <gdk/screen_stack.h>
+#include <jfc/screen_stack.h>
+
+#include <cstddef>
 
 namespace flappy
 {

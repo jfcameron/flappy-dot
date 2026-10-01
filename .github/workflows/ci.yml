@@ -1,0 +1,72 @@
+# © Joseph Cameron - All Rights Reserved
+
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.preset }} (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: linux-gcc
+            runner: ubuntu-latest
+
+          - preset: linux-clang
+            runner: ubuntu-latest
+
+          - preset: macos-clang
+            runner: macos-latest
+
+          - preset: windows-msvc
+            runner: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # windowing headers for glfw (x11 + wayland), software gl for the smoke run, audio backend
+      # headers so OpenAL builds with real ALSA and PulseAudio backends, and libc++ for linux-clang
+      - name: install dependencies
+        if: runner.os == 'Linux'
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              libasound2-dev \
+              libc++-dev \
+              libc++abi-dev \
+              libgl1-mesa-dri \
+              libglu1-mesa-dev \
+              libpulse-dev \
+              libwayland-dev \
+              libxkbcommon-dev \
+              wayland-protocols \
+              xorg-dev \
+              xvfb
+
+      - name: configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      # Runs the game for a few seconds on a virtual display: catches anything that throws during
+      # start up, like an asset that fails to decode. timeout's 124 means it was still running.
+      - name: smoke run (linux)
+        if: runner.os == 'Linux'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: 1
+          ALSOFT_DRIVERS: "null"
+        run: |
+            set +e
+            xvfb-run -a --server-args="-screen 0 1280x1024x24" timeout 5 ./out/build/${{ matrix.preset }}/flappy
+            status=$?
+            if [ $status -ne 124 ]; then echo "flappy exited early with status $status"; exit 1; fi

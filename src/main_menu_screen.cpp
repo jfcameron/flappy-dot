@@ -2,16 +2,11 @@
 
 #include <jfc/main_menu_screen.h>
 
-#include <gdk/texture.h>
 #include <gdk/text_map.h>
-
-#include <jfc/Text_Sheet.png.h>
 
 #include <sstream>
 
 using namespace gdk;
-
-audio::context::context_shared_ptr_type pAudioContext;
 
 static inline std::wstring playerCountToText(int aCount)
 {
@@ -24,34 +19,32 @@ static inline std::wstring playerCountToText(int aCount)
 	return s.str();
 }
 
-main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
-	input::context::context_shared_ptr_type aInputContext,
-	audio::context::context_shared_ptr_type aAudioContext,
+main_menu_screen::main_menu_screen(graphics::context_ptr_type aGraphicsContext,
+	input::context_ptr_type aInputContext,
+	[[maybe_unused]] audio::scene_shared_ptr_type aAudio,
 	screen_stack_ptr_type aScreens,
 	screen_ptr_type aGameScreen,
 	screen_ptr_type aOptionsScreen,
-	std::shared_ptr<glfw_window> aGLFWWindow,
+	gdk::windowing::window_ptr_type aWindow,
 	std::shared_ptr<flappy::event_bus> aEventBus,
 	flappy::assets::shared_ptr aAssets)
-	: m_pInput(aInputContext)
+	: m_pMainScene(aGraphicsContext->make_scene())
+	, m_pInput(aInputContext)
+	, m_pMainCamera(aGraphicsContext->make_camera())
 	, m_Screens(aScreens)
 	, m_GameScreen(aGameScreen)
 	, m_OptionsScreen(aOptionsScreen)
-	, m_pMainScene(graphics::context::scene_shared_ptr_type(std::move(aGraphicsContext->make_scene())))
-	, m_pMainCamera(std::shared_ptr<gdk::camera>(std::move(aGraphicsContext->make_camera())))
-	, scenery(flappy::scenery(aGraphicsContext, aGraphicsContext->get_alpha_cutoff_shader(), m_pMainScene, aAssets))
+	, scenery(flappy::scenery(aGraphicsContext, m_pMainScene, aAssets))
 	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::UpArrow);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::DownArrow);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::LeftArrow);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::RightArrow);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::Enter);},
-		[&]() {return m_pInput->get_key_just_pressed(keyboard::Key::Escape);})))
+		[&]() {return m_pInput->key_just_pressed(input::keyboard::key::uparrow);},
+		[&]() {return m_pInput->key_just_pressed(input::keyboard::key::downarrow);},
+		[&]() {return m_pInput->key_just_pressed(input::keyboard::key::leftarrow);},
+		[&]() {return m_pInput->key_just_pressed(input::keyboard::key::rightarrow);},
+		[&]() {return m_pInput->key_just_pressed(input::keyboard::key::enter);},
+		[&]() {return m_pInput->key_just_pressed(input::keyboard::key::escape);})))
 	, m_pEventBus(aEventBus)
 {
-	pAudioContext = aAudioContext;
-
-	m_pMainScene->add_camera(m_pMainCamera);
+	m_pMainScene->add(m_pMainCamera);
 
 	auto map = aAssets->get_textmap();
 
@@ -59,7 +52,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		map,
 		text_renderer::alignment::upper_edge, 
 		L"flappy dot"));
-	m_TitleText->set_model_matrix({ 0, 0.5f, 0 }, {}, { 0.1f });
+	m_TitleText->set_transform({ 0, 0.5f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.1f));
 	m_TitleText->add_to_scene(m_pMainScene);
 
 	m_VersionText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
@@ -72,9 +65,9 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	m_PromptText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
 		map,
 		text_renderer::alignment::center,
-		L"space to start"
+		L"enter to start"
 	));
-	m_PromptText->set_model_matrix({ 0, 0.0f, 0 }, {}, { 0.075f });
+	m_PromptText->set_transform({ 0, 0.0f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.075f));
 	m_PromptText->add_to_scene(m_pMainScene);
 
 	m_StartText = std::make_shared<static_text_renderer>(static_text_renderer(aGraphicsContext,
@@ -82,7 +75,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"start game"
 	));
-	m_StartText->set_model_matrix({ 0, 0.15f, 0 }, {}, { 0.05f });
+	m_StartText->set_transform({ 0, 0.15f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	m_StartText->add_to_scene(m_pMainScene);
 	m_StartText->hide();
 
@@ -91,7 +84,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		playerCountToText(m_PlayerCount)
 	));
-	m_PlayersCountText->set_model_matrix({ 0, 0.05f, 0 }, {}, { 0.05f });
+	m_PlayersCountText->set_transform({ 0, 0.05f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	m_PlayersCountText->add_to_scene(m_pMainScene);
 	m_PlayersCountText->hide();
 
@@ -100,7 +93,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"options"
 	));
-	m_pOptionsText->set_model_matrix({ 0, -0.05f, 0 }, {}, { 0.05f });
+	m_pOptionsText->set_transform({ 0, -0.05f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	m_pOptionsText->add_to_scene(m_pMainScene);
 	m_pOptionsText->hide();
 
@@ -109,7 +102,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"credits"
 	));
-	m_pCreditsText->set_model_matrix({ 0, -0.15f, 0 }, {}, { 0.05f });
+	m_pCreditsText->set_transform({ 0, -0.15f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	m_pCreditsText->add_to_scene(m_pMainScene);
 	m_pCreditsText->hide();
 
@@ -118,7 +111,7 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		text_renderer::alignment::center,
 		L"quit"
 	));
-	m_pQuitText->set_model_matrix({ 0, -0.25f, 0 }, {}, { 0.05f });
+	m_pQuitText->set_transform({ 0, -0.25f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	m_pQuitText->add_to_scene(m_pMainScene);
 	m_pQuitText->hide();
 
@@ -129,9 +122,9 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		L" ld: opengameart.org/users/ld"
 		L"\r\r"
 		L"Music\n\n"
-		" PlayOnLoop:\n opengameart.org/users/playonloop"
+		L" PlayOnLoop:\n opengameart.org/users/playonloop"
 		L"\r\r"
-		" ProjectsU012:\n freesound.org/people/ProjectsU012/"
+		L" ProjectsU012:\n freesound.org/people/ProjectsU012/"
 		L"\r\r"
 		L"code\n\n"
 		L" jfcameron:\n github.com/jfcameron/"
@@ -145,12 +138,12 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 	// Credits pane logic
 	auto credits_pane = pane::make_pane();
 	{
-		credits_pane->set_on_just_gained_top([=]()
+		credits_pane->set_on_just_gained_top([=, this]()
 		{
 			m_pCreditsContextText->show();
 		});
 
-		credits_pane->set_on_just_lost_top([=]()
+		credits_pane->set_on_just_lost_top([=, this]()
 		{
 			m_pCreditsContextText->hide();
 		});
@@ -185,18 +178,18 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		auto pCreditsButton = main_pane->make_element();
 		auto pQuitButton = main_pane->make_element();
 
-		auto lostFocus = [=]()
+		auto lostFocus = [=, this]()
 		{
 			show_current_text();
 		};
 
 		pStartButton->set_south_neighbour(pPlayersButton);
 		pStartButton->set_on_just_lost_focus(lostFocus);
-		pStartButton->set_on_just_gained_focus([=]()
+		pStartButton->set_on_just_gained_focus([=, this]()
 		{
 			set_current_text(m_StartText);
 		});
-		pStartButton->set_on_activated([=]()
+		pStartButton->set_on_activated([=, this]()
 		{
 			m_Screens->push(m_GameScreen);
 		});
@@ -204,11 +197,11 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		pPlayersButton->set_north_neighbour(pStartButton);
 		pPlayersButton->set_south_neighbour(pOptionsButton);
 		pPlayersButton->set_on_just_lost_focus(lostFocus);
-		pPlayersButton->set_on_just_gained_focus([=]()
+		pPlayersButton->set_on_just_gained_focus([=, this]()
 		{
 			set_current_text(m_PlayersCountText);
 		});
-		pPlayersButton->set_on_activated([=]()
+		pPlayersButton->set_on_activated([=, this]()
 		{
 			if (++m_PlayerCount > 4) m_PlayerCount = 1;
 
@@ -220,11 +213,11 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		pOptionsButton->set_north_neighbour(pPlayersButton);
 		pOptionsButton->set_south_neighbour(pCreditsButton);
 		pOptionsButton->set_on_just_lost_focus(lostFocus);
-		pOptionsButton->set_on_just_gained_focus([=]()
+		pOptionsButton->set_on_just_gained_focus([=, this]()
 		{
 			set_current_text(m_pOptionsText);
 		});
-		pOptionsButton->set_on_activated([=]()
+		pOptionsButton->set_on_activated([=, this]()
 		{
 			m_Screens->push(m_OptionsScreen);
 		});
@@ -232,24 +225,24 @@ main_menu_screen::main_menu_screen(graphics::context::context_shared_ptr_type aG
 		pCreditsButton->set_north_neighbour(pOptionsButton);
 		pCreditsButton->set_south_neighbour(pQuitButton);
 		pCreditsButton->set_on_just_lost_focus(lostFocus);
-		pCreditsButton->set_on_just_gained_focus([=]()
+		pCreditsButton->set_on_just_gained_focus([=, this]()
 		{
 			set_current_text(m_pCreditsText);
 		});
-		pCreditsButton->set_on_activated([=]()
+		pCreditsButton->set_on_activated([=, this]()
 		{
 			m_menu->push(credits_pane);
 		});
 
 		pQuitButton->set_north_neighbour(pCreditsButton);
 		pQuitButton->set_on_just_lost_focus(lostFocus);
-		pQuitButton->set_on_just_gained_focus([=]()
+		pQuitButton->set_on_just_gained_focus([=, this]()
 		{
 			set_current_text(m_pQuitText);
 		});
 		pQuitButton->set_on_activated([=]()
 		{
-			aGLFWWindow->close();
+			aWindow->close();
 		});
 	}
 
@@ -282,13 +275,13 @@ void main_menu_screen::update(float delta, float aspectRatio, std::pair<int, int
 
 	m_menu->update();
 	
-	m_VersionText->set_model_matrix({ +0.5f * aspectRatio, -0.5, 0 }, {}, { 0.035 });
+	m_VersionText->set_transform({ +0.5f * aspectRatio, -0.5f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.035f));
 
-	m_pCreditsContextText->set_model_matrix({ -0.5f * aspectRatio, 0.35f, 0 }, {}, { 0.04f });
+	m_pCreditsContextText->set_transform({ -0.5f * aspectRatio, 0.35f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.04f));
 
-	m_pMainCamera->set_orthographic_projection(2, 2, 0.0075, 10, aspectRatio);
+	m_pMainCamera->set_orthographic_projection({ 1, 1 }, -1, 10, aspectRatio);
 
-	m_pMainScene->draw(windowSize);
+	m_pMainScene->draw({ windowSize.first, windowSize.second });
 
 	scenery.update(delta);
 }

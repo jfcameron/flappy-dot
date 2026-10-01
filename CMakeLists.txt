@@ -1,84 +1,66 @@
 # © 2020 Joseph Cameron - All Rights Reserved
 
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
-
-project(null)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/jfc-cmake/jfclib.cmake")
 
-option(JFC_BUILD_DEMO "Build the demo" OFF)
-option(JFC_BUILD_DOCS "Build documentation" OFF)
-option(JFC_BUILD_TESTS "Build unit tests" OFF)
-
-add_subdirectory(thirdparty)
-
-jfc_project(executable
-    NAME "flappy"
+project(flappy
     VERSION 0.9
-    DESCRIPTION "yet another flappy bird clone"
-    C++_STANDARD 17
-    C_STANDARD 90
+    DESCRIPTION "yet another flappy bird clone")
 
-    PUBLIC_INCLUDE_DIRECTORIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        
-        ${gdkaudio_INCLUDE_DIRECTORIES} 
-        ${gdkgraphics_INCLUDE_DIRECTORIES} 
-        ${gdkinput_INCLUDE_DIRECTORIES} 
-        ${gdktextrenderer_INCLUDE_DIRECTORIES} 
-        ${jfceventbus_INCLUDE_DIRECTORIES} 
-        ${simpleglfw_INCLUDE_DIRECTORIES}
+add_subdirectory(extern)
 
-    PRIVATE_INCLUDE_DIRECTORIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+add_executable(flappy
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/options_screen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/dynamic_text_renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/static_text_renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/text/text_renderer.cpp)
 
-    LIBRARIES
-        ${gdkaudio_LIBRARIES} 
-        ${gdkgraphics_LIBRARIES}
-        ${gdkinput_LIBRARIES}
-        ${gdktextrenderer_LIBRARIES}
-        ${jfceventbus_LIBRARIES} 
-        ${simpleglfw_LIBRARIES}
+# Embed the assets as headers: assets/*/Foo.ext -> <jfc/Foo.ext.h>, symbol Foo_ext
+file(GLOB _flappy_assets CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/sounds/*.ogg"
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/textures/*.png")
 
-    SOURCE_LIST
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/background.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/bird.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/city.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/cloud.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/game.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/game_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main_menu_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/menu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/options_screen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pipe.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/background_music_player.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/control.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/flappy_event_bus.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-#       ${CMAKE_CURRENT_SOURCE_DIR}/src/test_main.cpp
+foreach(_asset ${_flappy_assets})
+    get_filename_component(_asset_name "${_asset}" NAME)
+    string(MAKE_C_IDENTIFIER "${_asset_name}" _asset_symbol)
 
-    DEPENDENCIES
-        "gdkgraphics"
-        "gdkaudio"
-        "gdkinput"
-        "gdktextrenderer"
-        "jfceventbus"
-        "simpleglfw"
-)
+    jfc_embed_file("${_asset_symbol}" "${_asset}"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated_include/jfc/${_asset_name}.h")
+
+    # re-embed when the asset changes
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_asset}")
+endforeach()
+
+target_include_directories(flappy PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/generated_include)
+
+target_compile_features(flappy PRIVATE cxx_std_20)
+
+target_link_libraries(flappy PRIVATE
+    gdkaudio
+    gdkgraphics
+    gdkinput
+    gdktime
+    gdkwindow
+    jfceventbus)
 
 # Hides the console window when building for windows
 #set_target_properties(flappy PROPERTIES 
 #    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
-
-if (JFC_BUILD_TESTS)
-    add_subdirectory(test)
-endif()
-
-if (JFC_BUILD_DOCS)
-    add_subdirectory(docs)
-endif()
-
-# TODO: TOOLS, etc

@@ -2,9 +2,9 @@
 
 using namespace gdk;
 
-game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsContext,
-	input::context::context_shared_ptr_type aInputContext,
-	audio::context::context_shared_ptr_type aAudio,
+game_screen::game_screen(graphics::context_ptr_type pGraphicsContext,
+	input::context_ptr_type aInputContext,
+	audio::scene_shared_ptr_type aAudio,
 	screen_stack_ptr_type aScreens,
 	std::shared_ptr<flappy::event_bus> aEventBus,
 	flappy::assets::shared_ptr aAssets)
@@ -61,12 +61,12 @@ game_screen::game_screen(graphics::context::context_shared_ptr_type pGraphicsCon
 			//if top == this pop else no
 			m_Screens->pop();
 		}))
-	, m_pBlackBGScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
-	, m_pBlackBGCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
+	, m_pBlackBGScene(pGraphicsContext->make_scene())
+	, m_pBlackBGCamera(pGraphicsContext->make_camera())
 {
-	m_pBlackBGCamera->set_clear_color({});
+	m_pBlackBGCamera->set_clear_color(graphics::color::black);
 
-	m_pBlackBGScene->add_camera(m_pBlackBGCamera);
+	m_pBlackBGScene->add(m_pBlackBGCamera);
 	
 	(*m_PlayerCountChangedObserver)({ 1 });
 
@@ -113,19 +113,22 @@ void game_screen::update(float deltaTime, float aspectRatio, std::pair<int, int>
 		},
 	});
 
-	m_pBlackBGScene->draw(windowSize);
+	m_pBlackBGScene->draw({ windowSize.first, windowSize.second });
 
-	std::pair<int, int> size = { 1, 1 };
+	// A game's retry and quit buttons replace that game from inside its own update, via the event
+	// bus. Updating a copy of the collection keeps each game alive until its update has returned;
+	// the replacement is updated from the next frame on.
+	const auto games = m_games;
 
-	auto zeroedPlayerCount = m_games.size() - 1;
+	auto zeroedPlayerCount = games.size() - 1;
 
-	for (decltype(m_games)::size_type i(0); i < m_games.size(); ++i)
+	for (decltype(m_games)::size_type i(0); i < games.size(); ++i)
 	{
 		auto ratio =		
 			(layouts[zeroedPlayerCount][i].winsizeScale.first * static_cast<float>(windowSize.first))/
 			(layouts[zeroedPlayerCount][i].winsizeScale.second * static_cast<float>(windowSize.second));
 
-		m_games[i]->update(deltaTime,
+		games[i]->update(deltaTime,
 			ratio,
 			windowSize,
 			layouts[zeroedPlayerCount][i].topLeft,

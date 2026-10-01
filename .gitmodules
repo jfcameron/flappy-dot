@@ -2,20 +2,14 @@
 	path = cmake/jfc-cmake
 	url = https://github.com/jfcameron/jfc-cmake.git
 [submodule "thirdparty/gdk-graphics"]
-	path = thirdparty/gdk-graphics
+	path = extern/gdk-graphics
 	url = https://github.com/jfcameron/gdk-graphics.git
-[submodule "thirdparty/simple-glfw"]
-	path = thirdparty/simple-glfw
-	url = https://github.com/jfcameron/simple-glfw.git
 [submodule "thirdparty/gdk-input"]
-	path = thirdparty/gdk-input
+	path = extern/gdk-input
 	url = https://github.com/jfcameron/gdk-input.git
-[submodule "thirdparty/gdk-text-renderer"]
-	path = thirdparty/gdk-text-renderer
-	url = https://github.com/jfcameron/gdk-text-renderer.git
 [submodule "thirdparty/gdk-audio"]
-	path = thirdparty/gdk-audio
+	path = extern/gdk-audio
 	url = https://github.com/jfcameron/gdk-audio.git
 [submodule "thirdparty/jfc-event-bus"]
-	path = thirdparty/jfc-event-bus
+	path = extern/jfc-event-bus
 	url = https://github.com/jfcameron/jfc-event-bus.git

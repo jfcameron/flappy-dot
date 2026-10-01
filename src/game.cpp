@@ -1,7 +1,6 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #include <jfc/game.h>
-#include <jfc/Text_Sheet.png.h>
 
 #include <memory>
 #include <chrono>
@@ -19,26 +18,26 @@ static size_t increment_pipeCounter(size_t& pipeCounter, size_t size)
 	return pipeCounter;
 }
 
-game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
-	input::context::context_shared_ptr_type aInputContext,
-	audio::context::context_shared_ptr_type aAudio,
+game::game(graphics::context_ptr_type pGraphicsContext,
+	input::context_ptr_type aInputContext,
+	audio::scene_shared_ptr_type aAudio,
 	screen_stack_ptr_type aScreens,
 	std::shared_ptr<flappy::event_bus> aEventBus,
 	flappy::assets::shared_ptr aAssets)
 	: pInputContext(aInputContext)
-	, pGameScene(gdk::graphics::context::scene_shared_ptr_type(std::move(pGraphicsContext->make_scene())))
-	, pMainCamera(std::shared_ptr<gdk::camera>(std::move(pGraphicsContext->make_camera())))
-	, scenery(flappy::scenery(pGraphicsContext, pGraphicsContext->get_alpha_cutoff_shader(), pGameScene, aAssets))
+	, pGameScene(pGraphicsContext->make_scene())
+	, pMainCamera(pGraphicsContext->make_camera())
+	, scenery(flappy::scenery(pGraphicsContext, pGameScene, aAssets))
 	, bird(flappy::bird(pGraphicsContext, pGameScene, pInputContext, aAudio, aAssets))
 	, m_screens(aScreens)
-	, m_EventBus(aEventBus)
 	, m_menu(std::make_shared<decltype(m_menu)::element_type>(gdk::menu(
-		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::UpArrow);},
-		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::DownArrow);},
-		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::LeftArrow);},
-		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::RightArrow);},
-		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::Enter);},
-		[&]() {return pInputContext->get_key_just_pressed(keyboard::Key::Escape);})))
+		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::uparrow);},
+		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::downarrow);},
+		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::leftarrow);},
+		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::rightarrow);},
+		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::enter);},
+		[&]() {return pInputContext->key_just_pressed(input::keyboard::key::escape);})))
+	, m_EventBus(aEventBus)
 	, m_BirdObserver(std::make_shared<bird::state_machine_type::observer_type>(
 		[&](bird::state aOld, bird::state aNew)
 		{
@@ -56,7 +55,7 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 {
 	bird.add_observer(m_BirdObserver);
 	
-	pGameScene->add_camera(pMainCamera);
+	pGameScene->add(pMainCamera);
 
 	for (size_t i(0); i < 10; ++i) clouds.push_back(flappy::cloud(pGraphicsContext, pGameScene, aAssets));
 
@@ -65,20 +64,18 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 	for (size_t i(0); i < 30; ++i) pipes.push_back(flappy::pipe(pGraphicsContext, pGameScene, aAssets));
 
 	// text stuff
-	auto pTextTexture = aAssets->get_textmap();
-
 	text_map map = aAssets->get_textmap();
 
 	pScoreText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext,
 		map,
 		text_renderer::alignment::upper_edge));
-	pScoreText->set_model_matrix({ 0, 0.5f, 0 }, {}, { 0.1f });
+	pScoreText->set_transform({ 0, 0.5f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.1f));
 	pScoreText->add_to_scene(pGameScene);
 
 	pHighScoreText = std::make_shared<dynamic_text_renderer>(dynamic_text_renderer(pGraphicsContext,
 		map,
 		text_renderer::alignment::upper_edge));
-	pHighScoreText->set_model_matrix({ 0, 0.25f, 0 }, {}, { 0.05f });
+	pHighScoreText->set_transform({ 0, 0.25f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	pHighScoreText->hide();
 	pHighScoreText->add_to_scene(pGameScene);
 	
@@ -88,7 +85,7 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 		map,
 		text_renderer::alignment::upper_edge,
 		L"retry"));
-	pRetryText->set_model_matrix({ 0.2f, 0.1f, 0 }, {}, { 0.05f });
+	pRetryText->set_transform({ 0.2f, 0.1f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	pRetryText->hide();
 	pRetryText->add_to_scene(pGameScene);
 
@@ -96,7 +93,7 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 		map,
 		text_renderer::alignment::upper_edge,
 		L"quit"));
-	pQuitText->set_model_matrix({ -0.2f, 0.1f, 0 }, {}, { 0.05f });
+	pQuitText->set_transform({ -0.2f, 0.1f, 0 }, graphics::quaternion_type::identity, graphics::vector3_type(0.05f));
 	pQuitText->hide();
 	pQuitText->add_to_scene(pGameScene);
 
@@ -113,14 +110,14 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 		};
 
 		retry->set_west_neighbour(quit);
-		retry->set_on_just_gained_focus([=]() {gainedFocus(pRetryText);});
+		retry->set_on_just_gained_focus([=, this]() {gainedFocus(pRetryText);});
 		retry->set_on_activated([this, aEventBus]() 
 		{
 			aEventBus->propagate_player_wants_to_reset_event({this});
 		});
 
 		quit->set_east_neighbour(retry);
-		quit->set_on_just_gained_focus([=]() {gainedFocus(pQuitText);});
+		quit->set_on_just_gained_focus([=, this]() {gainedFocus(pQuitText);});
 		quit->set_on_activated([this, aEventBus]()
 		{
 			aEventBus->propagate_player_wants_to_quit_event({this});
@@ -141,7 +138,8 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 		pQuitText->hide();
 	});
 
-	m_Random.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	m_Random.seed(static_cast<decltype(m_Random)::result_type>(
+		std::chrono::system_clock::now().time_since_epoch().count()));
 
 	static const auto standard_horizontal_delay = 0.5f;
 	static const auto minimum_height = -0.85f;
@@ -153,7 +151,7 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 	m_PipeBehaviours[0] = [](decltype(pipes)& pipes, decltype(pipeCounter)& counter, decltype(pipeDelay)& delay, decltype(m_Random)& random)
 	{
 		auto raw_random = random() % 8;
-		auto random_element = raw_random / 7.f;
+		auto random_element = static_cast<float>(raw_random) / 7.f;
 
 		const auto vertical_range = (maximum_height - minimum_height);
 
@@ -161,16 +159,12 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 
 		if (raw_random != 0)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height },
-				0,
-				flappy::pipe::set_up_model::up_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height }, 0);
 		}
 
 		if (raw_random != 7)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval },
-				3.1415926536f,
-				flappy::pipe::set_up_model::down_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval }, 3.1415926536f);
 		}
 
 		delay = standard_horizontal_delay * 2;
@@ -186,7 +180,7 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 
 		std::cout << raw_random << "\n";
 
-		auto random_element = raw_random / 7.f;
+		auto random_element = static_cast<float>(raw_random) / 7.f;
 
 		const auto vertical_range = (maximum_height - minimum_height);// *random_element;
 
@@ -194,16 +188,12 @@ game::game(graphics::context::context_shared_ptr_type pGraphicsContext,
 
 		if (raw_random >= 0.5f)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height },
-				0,
-				flappy::pipe::set_up_model::up_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height }, 0);
 		}
 
 		if (raw_random < 6.5f)
 		{
-			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval },
-				3.1415926536f,
-				flappy::pipe::set_up_model::down_pipe);
+			pipes[increment_pipeCounter(counter, pipes.size())].set_up({ 2,height + vertical_interval }, 3.1415926536f);
 		}
 
 		delay = standard_horizontal_delay * 1;
@@ -223,14 +213,14 @@ void game::update(float deltaTime,
 	std::pair<float, float> vpUpperLeft, 
 	std::pair<float, float> vpSize)
 {
-	pMainCamera->set_orthographic_projection(2, 2, 0.01f, 10, aspectRatio);
+	pMainCamera->set_orthographic_projection({ 1, 1 }, -1, 10, aspectRatio);
 	pMainCamera->set_viewport(vpUpperLeft.first, vpUpperLeft.second, vpSize.first, vpSize.second);
 
-	pGameScene->draw(windowSize);
+	pGameScene->draw({ windowSize.first, windowSize.second });
 
 	scenery.update(deltaTime);
 
-	for (auto& pipe : pipes) pipe.update(deltaTime, pInputContext);
+	for (auto& pipe : pipes) pipe.update(deltaTime);
 
 	for (auto& cloud : clouds) cloud.update(deltaTime);
 

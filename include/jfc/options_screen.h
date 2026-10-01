@@ -1,4 +1,4 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef FLAPPY_OPTIONS_SCREEN_H
 #define FLAPPY_OPTIONS_SCREEN_H
@@ -6,20 +6,23 @@
 #include <gdk/screen.h>
 
 #include <jfc/assets.h>
-#include <gdk/graphics_context.h>
-#include <gdk/input_context.h>
-#include <gdk/audio/context.h>
+#include <gdk/audio/scene.h>
+#include <gdk/graphics/context.h>
+#include <gdk/graphics/scene.h>
+#include <gdk/graphics/screen_camera.h>
+#include <gdk/input/context.h>
 #include <gdk/menu.h>
 #include <gdk/dynamic_text_renderer.h>
 #include <gdk/static_text_renderer.h>
 
 #include <jfc/screen_stack.h>
 #include <jfc/background.h>
-#include <jfc/glfw_window.h>
 #include <jfc/flappy_screen.h>
 #include <jfc/flappy_event_bus.h>
 
-#include <gdk/configurator.h>
+#include <gdk/input/controls.h>
+
+#include <set>
 
 namespace flappy
 {
@@ -27,11 +30,11 @@ namespace flappy
 	/// controls, enable/disable music.
 	class options_screen final : public flappy::screen
 	{
-		gdk::graphics::context::scene_shared_ptr_type m_pMainScene;
+		gdk::graphics::scene_ptr_type m_pMainScene;
 
-		input::context::context_shared_ptr_type m_pInput;
+		input::context_ptr_type m_pInput;
 
-		std::shared_ptr<gdk::camera> m_pMainCamera;
+		gdk::graphics::camera_ptr_type m_pMainCamera;
 
 		screen_stack_ptr_type m_Screens;
 
@@ -43,12 +46,9 @@ namespace flappy
 
 		std::vector<std::shared_ptr<static_text_renderer>> m_BindingNamesTexts;
 		
-		std::shared_ptr<gdk::configurator> m_pConfig;
-
 		//! TEMPORARY. Remove when config is working well 
 		// and I have thought of a proper place to store all the player controls.
-		std::shared_ptr<gdk::controls> m_pControls;
-
+		gdk::input::controls_ptr_type m_pControls;
 
 		/// \brief pane to select a binding name from. root of the config sub menu
 		pane::pane_shared_ptr select_binding_pane;
@@ -83,9 +83,9 @@ namespace flappy
 	public:
 		virtual void update(float delta, float aspectRatio, std::pair<int, int> windowSize) override;
 
-		options_screen(graphics::context::context_shared_ptr_type aGraphicsContext,
-			input::context::context_shared_ptr_type aInputContext,
-			audio::context::context_shared_ptr_type aAudioContext,
+		options_screen(graphics::context_ptr_type aGraphicsContext,
+			input::context_ptr_type aInputContext,
+			audio::scene_shared_ptr_type aAudio,
 			screen_stack_ptr_type aScreens,
 			std::shared_ptr<flappy::event_bus> aEventBus,
 			flappy::assets::shared_ptr aAssets);

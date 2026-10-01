@@ -1,27 +1,24 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 #include <jfc/pipe.h>
-#include <jfc/Sprite_Sheet.png.h>
 #include <jfc/bird.h>
 
-#include <chrono>
+#include <cmath>
 
 using namespace flappy;
 using namespace gdk;
 
-static const graphics_vector2_type PIPE_MOUTH_UP_GRAPHIC(0, 1);
-static const graphics_vector2_type PIPE_MOUTH_DOWN_GRAPHIC(1, 1);
-static const graphics_vector2_type PIPE_TRUNK_GRAPHIC(3, 0);
+static const graphics::vector2_type PIPE_MOUTH_GRAPHIC(0, 1);
+static const graphics::vector2_type PIPE_TRUNK_GRAPHIC(3, 0);
 
-static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTileCell, 
-	graphics_vector2_type aMiddleTileCell,
-	graphics_vector2_type aTopTileCell,
-	gdk::graphics::context::context_shared_ptr_type pContext)
+static graphics::model_data generatePipeModel(graphics::vector2_type aBottomTileCell, 
+	graphics::vector2_type aMiddleTileCell,
+	graphics::vector2_type aTopTileCell)
 {
-	using vertex_attribute_type = float;
+	using vertex_attribute_type = graphics::component_type;
 	using vertex_attribute_array_type = std::vector<vertex_attribute_type>;
 
 	vertex_attribute_type size = 1;
-	decltype(size) hsize = size / 2.;
+	decltype(size) hsize = size / 2.f;
 
 	vertex_attribute_array_type posData({ //quads used to render the pieces of pipe (mouth and trunk)
 		size - hsize, size - hsize, 0.0f, // NOTE: This work should be abstracted away into a tiled mesh generator.
@@ -52,6 +49,7 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 	// This is only really an issue for extremely low pixel count games (such as this one)
 
 	aBottomTileCell *= cellSize;
+	aMiddleTileCell *= cellSize;
 	aTopTileCell *= cellSize;
 
 	float bottom_xl = aBottomTileCell.x + sampleBias;
@@ -59,10 +57,10 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 	float bottom_xh = aBottomTileCell.x + cellSize - sampleBias;
 	float bottom_yh = aBottomTileCell.y + cellSize - sampleBias;
 
-	float middle_xl = aBottomTileCell.x + sampleBias;
-	float middle_yl = aBottomTileCell.y + sampleBias;
-	float middle_xh = aBottomTileCell.x + cellSize - sampleBias;
-	float middle_yh = aBottomTileCell.y + cellSize - sampleBias;
+	float middle_xl = aMiddleTileCell.x + sampleBias;
+	float middle_yl = aMiddleTileCell.y + sampleBias;
+	float middle_xh = aMiddleTileCell.x + cellSize - sampleBias;
+	float middle_yh = aMiddleTileCell.y + cellSize - sampleBias;
 
 	float top_xl = aTopTileCell.x + sampleBias;
 	float top_yl = aTopTileCell.y + sampleBias;
@@ -92,60 +90,44 @@ static std::shared_ptr<model> generatePipeModel(graphics_vector2_type aBottomTil
 		top_xh, top_yh,
 	});
 
-	auto pModel = std::shared_ptr<model>(std::move(
-		pContext->make_model({ vertex_data_view::UsageHint::Static,
-		{
-			{
-				"a_Position",
-				{
-					&posData.front(),
-					posData.size(),
-					3
-				}
-			},
-			{
-				"a_UV",
-				{
-					&uvData.front(),
-					uvData.size(),
-					2
-				}
-			}
-		} })));
-
-	return pModel;
+	return graphics::model_data({
+		{ "a_Position", { posData, 3 } },
+		{ "a_UV", { uvData, 2 } }
+	});
 }
 
-pipe::pipe(gdk::graphics::context::context_shared_ptr_type pContext,
-	gdk::graphics::context::scene_shared_ptr_type pScene,
+/// \brief mouth at the top, so a pipe rotated by pi hangs with its mouth at the bottom
+static const graphics::model_data &pipe_model_data()
+{
+	static const auto data = generatePipeModel(PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_MOUTH_GRAPHIC);
+
+	return data;
+}
+
+pipe::pipe(gdk::graphics::context_ptr_type pContext,
+	gdk::graphics::scene_ptr_type pScene,
 	flappy::assets::shared_ptr aAssets)
 : m_Position(-5.0, 0.0)
 , m_Scale(0.25, 0.25)
 {
-	auto pTexture = aAssets->get_spritesheet();
+	m_Material = pContext->make_material(aAssets->get_alpha_cutoff_shader());
+	m_Material->set_texture("_Texture", aAssets->get_spritesheet());
+	m_Material->set_vector2("_UVScale", { 1, 1 });
+	m_Material->set_vector2("_UVOffset", { 0, 0 });
 
-	m_Material = std::shared_ptr<material>(std::move(pContext->make_material(pContext->get_alpha_cutoff_shader())));
-	m_Material->setTexture("_Texture", pTexture);
-	m_Material->setVector2("_UVScale", { 1, 1 });
-	m_Material->setVector2("_UVOffset", { 0, 0 });
-
-	m_UpPipeModel = generatePipeModel(PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_MOUTH_UP_GRAPHIC, pContext);
-	m_DownPipeModel = generatePipeModel(PIPE_MOUTH_DOWN_GRAPHIC, PIPE_TRUNK_GRAPHIC, PIPE_TRUNK_GRAPHIC, pContext);
-
-	m_Entity = pContext->make_entity(m_UpPipeModel, m_Material);
+	m_Entity = pContext->make_entity(
+		pContext->make_model(graphics::model::usage_hint::upload_once, pipe_model_data()), m_Material);
 	
-	pScene->add_entity(m_Entity);
+	pScene->add(m_Entity);
 }
 
-float total_time(0);
-
-void pipe::update(const float delta, gdk::input::context::context_shared_ptr_type pInput)
+void pipe::update(const float delta)
 {
-	total_time += delta;
-
 	m_Position.x -= delta * 0.65f;
 
-	m_Entity->set_model_matrix({ m_Position.x, m_Position.y, -0.435 }, { {0, 0, m_Rotation} }, { m_Scale.x, m_Scale.y, 1 });
+	m_Entity->set_transform({ m_Position.x, m_Position.y, -0.435f }, 
+		graphics::quaternion_type::from_euler({ 0, 0, m_Rotation }), 
+		{ m_Scale.x, m_Scale.y, 1 });
 }
 
 decltype(pipe::m_Position) pipe::getPosition() const
@@ -164,44 +146,34 @@ decltype(pipe::m_Rotation) pipe::getRotation() const
 }
 
 void pipe::set_up(const decltype(m_Position)& aPosition, 
-	const decltype(m_Rotation) aRotation, 
-	const pipe::set_up_model &aModel)
+	const decltype(m_Rotation) aRotation)
 {
 	m_Position = aPosition;
 	m_Rotation = aRotation;
-
-	m_Entity->set_model(aModel == pipe::set_up_model::up_pipe
-		? m_UpPipeModel
-		: m_DownPipeModel);
 }
 
-bool pipe::check_collision(const graphics_mat4x4_type &aWorldPosition) const
+bool pipe::check_collision(const graphics::vector2_type &aWorldPosition) const
 {
 	// bail early if collision is not possible
 	if (std::abs(m_Position.x) > 0.5f) return false;
 
-	// Building an inverse world matrix so the bird's world position can be mulled into the pipe's local space
-	// for scale & rotation friendly point vs box collision detection.
+	// Moving the bird's world position into the pipe's local space
+	// for rotation friendly point vs box collision detection.
 	// NOTE: This should not be the pipe's responsibility. This should be performed by a separate system but
 	// this implementation is OK given how simple the game is.
-	graphics_mat4x4_type pipeWorld;
+	// The thresholds below are tuned against translation and rotation only; scale is not removed.
+	const graphics::vector2_type offset(aWorldPosition.x - m_Position.x, aWorldPosition.y - m_Position.y);
 
-	auto pos = getPosition();
-	auto sca = getScale();
-	auto rot = getRotation();
+	const auto c = std::cos(-m_Rotation);
+	const auto s = std::sin(-m_Rotation);
 
-	pipeWorld.translate({ pos.x, pos.y, 0 });
-	pipeWorld.scale({ sca.x, sca.y, 1 });
-	pipeWorld.rotate({ {0, 0, rot} });
-	pipeWorld.inverse(); 
-
-	graphics_mat4x4_type localBird = pipeWorld * aWorldPosition;
-	Vector2<float> localBirdPos(localBird.m[3][0], localBird.m[3][1]);
+	const graphics::vector2_type localBirdPos(offset.x * c - offset.y * s, 
+		offset.x * s + offset.y * c);
 
 	return 
 		//Horizontal check
-		std::abs(localBirdPos.x) < 0.15
+		std::abs(localBirdPos.x) < 0.15f
 		//Vertical checks
-		&& localBirdPos.y > -0.1
-		&& localBirdPos.y < 0.5;
+		&& localBirdPos.y > -0.1f
+		&& localBirdPos.y < 0.5f;
 }

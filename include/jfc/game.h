@@ -1,15 +1,14 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef FLAPPY_GAME_H
 #define FLAPPY_GAME_H
 
-#include <gdk/input_context.h>
-#include <gdk/intvector2.h>
+#include <gdk/audio/scene.h>
+#include <gdk/graphics/context.h>
+#include <gdk/graphics/scene.h>
+#include <gdk/graphics/screen_camera.h>
+#include <gdk/input/context.h>
 #include <gdk/screen.h>
-#include <gdk/graphics_context.h>
-#include <gdk/input_context.h>
-#include <gdk/audio/context.h>
-#include <gdk/scene.h>
 #include <gdk/text_map.h>
 #include <gdk/static_text_renderer.h>
 #include <gdk/dynamic_text_renderer.h>
@@ -17,10 +16,6 @@
 
 #include <jfc/flappy_event_bus.h>
 #include <jfc/assets.h>
-#include <jfc/game.h>
-#include <jfc/Text_Sheet.png.h>
-#include <jfc/Sprite_Sheet.png.h>
-#include <jfc/Floor.png.h>
 #include <jfc/background.h>
 #include <jfc/cloud.h>
 #include <jfc/bird.h>
@@ -29,8 +24,9 @@
 #include <jfc/screen_stack.h>
 
 #include <array>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <random>
 
 namespace flappy
 {
@@ -63,16 +59,13 @@ namespace flappy
 		std::default_random_engine m_Random;
 
 		//! ptr to the input abstraction
-		input::context::context_shared_ptr_type pInputContext;
+		input::context_ptr_type pInputContext;
 		
 		//! graphics scene where gameplay takes place
-		gdk::graphics::context::scene_shared_ptr_type pGameScene;
+		gdk::graphics::scene_ptr_type pGameScene;
 
-		//! graphics scene where GUI elements are rendered
-		gdk::graphics::context::scene_shared_ptr_type pGUIScene;
-
-		//! camera used to render both the game and gui scenes
-		std::shared_ptr<gdk::camera> pMainCamera;
+		//! camera used to render the game scene
+		gdk::graphics::camera_ptr_type pMainCamera;
 
 		//! controls the background effects behaviour
 		flappy::scenery scenery;
@@ -134,9 +127,9 @@ namespace flappy
 			std::pair<float, float> vpUpperLeft, 
 			std::pair<float, float> vpSize);
 
-		game(graphics::context::context_shared_ptr_type aGraphicsContext,
-			input::context::context_shared_ptr_type aInputContext,
-			audio::context::context_shared_ptr_type aAudio,
+		game(graphics::context_ptr_type aGraphicsContext,
+			input::context_ptr_type aInputContext,
+			audio::scene_shared_ptr_type aAudio,
 			screen_stack_ptr_type aScreens,
 			std::shared_ptr<flappy::event_bus> a,
 			flappy::assets::shared_ptr aAssets);

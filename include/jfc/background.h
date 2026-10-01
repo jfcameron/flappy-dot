@@ -1,13 +1,14 @@
-// © 2020 Joseph Cameron - All Rights Reserved
+// Â© 2020 Joseph Cameron - All Rights Reserved
 
 #ifndef JFC_FLAPPY_BACKGROUND_H
 #define JFC_FLAPPY_BACKGROUND_H
 
 #include <jfc/assets.h>
 
-#include <gdk/graphics_context.h>
-#include <gdk/scene.h>
-#include <gdk/entity.h>
+#include <gdk/graphics/context.h>
+#include <gdk/graphics/entity.h>
+#include <gdk/graphics/material.h>
+#include <gdk/graphics/scene.h>
 
 #include <array>
 
@@ -20,17 +21,16 @@ namespace flappy
 		static constexpr size_t size = 8;
 
 	private:
-		std::array<std::shared_ptr<gdk::entity>, size> m_ParallaxEntities;
-		std::array<std::shared_ptr<gdk::material>, size> m_ParallaxMaterials;
+		std::array<gdk::graphics::entity_ptr_type, size> m_ParallaxEntities;
+		std::array<gdk::graphics::material_ptr_type, size> m_ParallaxMaterials;
 
 		float time = 0;
 
 	public:
 		void update(const float delta);
 
-		scenery(gdk::graphics::context::context_shared_ptr_type pContext,
-			gdk::graphics::context::shader_program_shared_ptr_type pShader,
-			gdk::graphics::context::scene_shared_ptr_type pScene,
+		scenery(gdk::graphics::context_ptr_type pContext,
+			gdk::graphics::scene_ptr_type pScene,
 			flappy::assets::shared_ptr aAssets);
 		~scenery() = default;
 	};
